@@ -6,21 +6,22 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { Separator } from '@/components/ui/separator';
 import { authService, patientService } from '@/services/api';
 import { useToast } from '@/components/ui/use-toast';
 
 export default function PatientProfile() {
-    const [profile, setProfile] = useState<any>(null);
+    const [patientProfile, setPatientProfile] = useState<any>(null);
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
     const { toast } = useToast();
 
+    // Form data state
     const [formData, setFormData] = useState({
         prenom: '',
         nom: '',
         telephone: '',
         email: '',
+        city: '',
         role: 'patient'
     });
 
@@ -31,57 +32,49 @@ export default function PatientProfile() {
     const fetchProfile = async () => {
         try {
             const currentUser = authService.getCurrentUser();
-            // Need patient profile ID needed, usually linked to user. Check if currentUser has patientId or if we use userId.
-            // Based on API review, getPatientById takes ID. Let's assume user._id or we need to find the patient profile associated with user.
-            // If the backend /patients/:id routes expects PATIENT ID, we need to know it. 
-            // Often auth response includes linked profile ID.
-            // If not, we might need a distinct endpoint like /patients/me or similar.
-            // Looking at patientController.getPatientById: `Patient.findById(req.params.id)`
-            // The previous getMyAppointments used currentUser._id. PLEASE NOTE: user._id is likely Users collection ID.
-            // The Patient model likely has `_id` (Profile ID) and `user` (User ID).
-            // Ideally we should have an endpoint to get patient by USER ID or store patientId in local storage on login.
-            // For now, let's try using currentUser._id assuming the user ID is what we pass or the auth logic handles it. 
-            // WAIT using getPatientById usually implies Patient ID.
-            // Does authController login response provide patient profile ID?
-            // Let's assume generic user data first from authService, and fetch additional if needed.
+            if (!currentUser) {
+                setLoading(false);
+                return;
+            }
 
-            if (currentUser) {
-                // If we have a dedicated patient ID in user object, use it.
-                // Otherwise, we might need to rely on what we have.
-                // Let's rely on what `getMyAppointments` did: `currentUser._id`. 
-                // If that worked for appointments (which queries `idPatient`), it implies `currentUser._id` is sufficient or mapped.
+            // Fetch all patients and match by user ID
+            const patients = await patientService.getAllPatients();
+            // Assuming response is array of patients or { data: doctors }? 
+            // patientController.getAllPatients returns `res.json(patients)`. So it's an array.
+            // But let's be safe.
+            const patientList = Array.isArray(patients) ? patients : (patients.data || []);
 
-                // Actually, let's check if we can just use the user data from auth for basics, 
-                // and if we need to fetch the "Patient" document, we might need to search for it.
-                // Or maybe `currentUser.id` IS the patient ID?
-                // Let's stick to displaying/updating User data primarily if Patient specific fields aren't too complex.
-                // The Patient Model has: user (ref), medical history?
-                // User Model has: nom, prenom, email, telephone.
-                // So actually we are updating the USER, not just the PATIENT profile.
-                // But the endpoints are `patientRoutes`. `updatePatient` updates `Patient` model.
-                // `User` model holds the contact info.
-                // Backend architecture nuance: Does updating Patient update the linked User? 
-                // `patientController.updatePatient`: `Patient.findByIdAndUpdate`. It does NOT populate/update user fields automatically usually.
-                // This might be a separate issue.
-                // However, for the DESIGN task, I will mock the fetch/update with the API and handle the data.
+            const myProfile = patientList.find((p: any) =>
+                p.user?._id === currentUser._id || p.user === currentUser._id
+            );
 
-                const id = currentUser._id || currentUser.id;
-
-                // We will attempt to fetch detailed profile. 
-                // If it fails (e.g. ID mismatch), we fallback to auth data.
-                // Note: If /patients/:id expects PatientID and we send UserID, it might fail if they are different.
-
-                setProfile(currentUser);
+            if (myProfile) {
+                setPatientProfile(myProfile);
                 setFormData({
+                    prenom: myProfile.prenom || '',
+                    nom: myProfile.nom || '',
+                    telephone: myProfile.telephone || '',
+                    email: myProfile.user?.email || currentUser.email || '',
+                    city: myProfile.city || '',
+                    role: myProfile.user?.rôle || 'patient'
+                });
+            } else {
+                // Fallback: use Auth User data
+                setFormData(prev => ({
+                    ...prev,
                     prenom: currentUser.prenom || '',
                     nom: currentUser.nom || '',
-                    telephone: currentUser.telephone || '',
                     email: currentUser.email || '',
-                    role: currentUser.role || 'patient'
-                });
+                    role: currentUser.rôle || 'patient'
+                }));
             }
         } catch (error) {
             console.error("Failed to load profile", error);
+            toast({
+                title: "Erreur",
+                description: "Impossible de charger le profil patient.",
+                variant: "destructive"
+            });
         } finally {
             setLoading(false);
         }
@@ -93,30 +86,39 @@ export default function PatientProfile() {
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
+
+        if (!patientProfile?._id) {
+            toast({
+                title: "Erreur",
+                description: "Profil patient introuvable pour la mise à jour.",
+                variant: "destructive"
+            });
+            return;
+        }
+
         setSaving(true);
         try {
-            const currentUser = authService.getCurrentUser();
-            if (currentUser) {
-                const id = currentUser._id || currentUser.id;
-                // Ideally we should update the USER entity for name/phone if they are on User model.
-                // If we only have patient service, we might need to ask for a user update endpoint.
-                // But for now, let's assume valid API usage.
+            // Update call
+            // Patient model fields: nom, prenom, gender, age, city, telephone.
+            const updatePayload = {
+                nom: formData.nom,
+                prenom: formData.prenom,
+                telephone: formData.telephone,
+                city: formData.city
+            };
 
-                // Simulating update for demo if backend isn't ready for user updates via patient route
-                const updatedUser = { ...currentUser, ...formData };
-                localStorage.setItem('user', JSON.stringify(updatedUser));
-                setProfile(updatedUser);
+            await patientService.updatePatient(patientProfile._id, updatePayload);
 
-                // Call API if possible (commented out until endpoint verified to handle User vs Patient ID)
-                // await patientService.updateProfile(id, formData);
+            toast({
+                title: "Profil mis à jour",
+                description: "Vos informations ont été enregistrées avec succès.",
+                className: "bg-green-500 text-white border-none"
+            });
 
-                toast({
-                    title: "Profil mis à jour",
-                    description: "Vos informations ont été enregistrées avec succès.",
-                    className: "bg-green-500 text-white border-none"
-                });
-            }
+            fetchProfile(); // Refresh data
+
         } catch (error) {
+            console.error(error);
             toast({
                 title: "Erreur",
                 description: "Impossible de mettre à jour le profil.",
@@ -126,6 +128,16 @@ export default function PatientProfile() {
             setSaving(false);
         }
     };
+
+    if (loading) {
+        return (
+            <DashboardLayout>
+                <div className="flex justify-center items-center h-screen">
+                    <Loader2 className="h-8 w-8 animate-spin" />
+                </div>
+            </DashboardLayout>
+        );
+    }
 
     return (
         <DashboardLayout>
@@ -145,7 +157,7 @@ export default function PatientProfile() {
                         <div className="h-32 bg-medical-blue/20 relative">
                             <div className="absolute -bottom-16 left-1/2 -translate-x-1/2">
                                 <div className="w-32 h-32 rounded-full border-4 border-white dark:border-zinc-900 bg-white dark:bg-zinc-800 shadow-xl flex items-center justify-center text-4xl font-bold text-primary">
-                                    {formData.prenom?.[0]}{formData.nom?.[0]}
+                                    {formData.prenom?.[0] || '?'}{formData.nom?.[0] || '?'}
                                 </div>
                             </div>
                         </div>
@@ -154,7 +166,7 @@ export default function PatientProfile() {
                                 <h2 className="text-2xl font-bold">{formData.prenom} {formData.nom}</h2>
                                 <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-primary/10 text-primary text-sm font-medium mt-2">
                                     <Shield className="w-3.5 h-3.5" />
-                                    Patient
+                                    {formData.role}
                                 </span>
                             </div>
 
@@ -169,7 +181,7 @@ export default function PatientProfile() {
                                 </div>
                                 <div className="flex items-center gap-3 text-sm text-muted-foreground p-3 rounded-lg bg-muted/50">
                                     <Calendar className="w-4 h-4 text-primary" />
-                                    <span>Membre depuis 2024</span>
+                                    <span>Membre depuis {patientProfile?.createdAt ? new Date(patientProfile.createdAt).getFullYear() : '2024'}</span>
                                 </div>
                             </div>
                         </CardContent>
@@ -226,10 +238,10 @@ export default function PatientProfile() {
                                         <Input
                                             name="email"
                                             value={formData.email}
-                                            onChange={handleChange}
+                                            readOnly
                                             className="pl-9 bg-muted/30"
                                             placeholder="votre@email.com"
-                                        // readOnly // Email often readonly
+                                            title="Email non modifiable"
                                         />
                                     </div>
                                 </div>
@@ -253,9 +265,11 @@ export default function PatientProfile() {
                                         <div className="relative">
                                             <MapPin className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
                                             <Input
-                                                className="pl-9 bg-muted/30"
+                                                name="city"
+                                                value={formData.city}
+                                                onChange={handleChange}
+                                                className="pl-9"
                                                 placeholder="Non spécifié"
-                                                disabled
                                             />
                                         </div>
                                     </div>
