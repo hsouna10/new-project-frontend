@@ -74,6 +74,10 @@ export const appointmentService = {
         const response = await api.patch(`/appointments/${appointmentId}/status`, { status });
         return response.data;
     },
+    getCompletedAppointments: async () => {
+        const response = await api.get('/appointments/accepte');
+        return response.data;
+    },
 };
 
 export default api;

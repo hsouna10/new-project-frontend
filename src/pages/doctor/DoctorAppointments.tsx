@@ -167,6 +167,16 @@ export default function DoctorAppointments() {
                                                 </Button>
                                             </div>
                                         )}
+
+                                        {appointment.status === 'confirmed' && (
+                                            <Button
+                                                size="sm"
+                                                onClick={() => handleStatusChange(appointment._id, 'completed')}
+                                                className="bg-blue-600 hover:bg-blue-700 text-white shadow-sm hover:shadow-blue-200 dark:hover:shadow-none transition-all"
+                                            >
+                                                <Check className="h-4 w-4 mr-1.5" /> Terminé
+                                            </Button>
+                                        )}
                                     </div>
                                 </Card>
                             </motion.div>
