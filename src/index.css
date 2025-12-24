@@ -1,0 +1,180 @@
+@import url('https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 222 47% 6%;
+    --foreground: 210 40% 98%;
+
+    --card: 222 47% 8%;
+    --card-foreground: 210 40% 98%;
+
+    --popover: 222 47% 10%;
+    --popover-foreground: 210 40% 98%;
+
+    --primary: 174 72% 56%;
+    --primary-foreground: 222 47% 6%;
+
+    --secondary: 230 65% 55%;
+    --secondary-foreground: 210 40% 98%;
+
+    --muted: 222 40% 15%;
+    --muted-foreground: 215 20% 65%;
+
+    --accent: 16 85% 65%;
+    --accent-foreground: 222 47% 6%;
+
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 210 40% 98%;
+
+    --border: 222 40% 18%;
+    --input: 222 40% 18%;
+    --ring: 174 72% 56%;
+
+    --radius: 1rem;
+
+    /* Custom medical theme tokens */
+    --medical-teal: 174 72% 56%;
+    --medical-teal-glow: 174 72% 70%;
+    --medical-blue: 230 65% 55%;
+    --medical-coral: 16 85% 65%;
+    --medical-purple: 270 60% 60%;
+    --medical-dark: 222 47% 6%;
+    --medical-dark-light: 222 47% 10%;
+    
+    /* Gradients */
+    --gradient-primary: linear-gradient(135deg, hsl(174 72% 56%), hsl(230 65% 55%));
+    --gradient-hero: linear-gradient(180deg, hsl(222 47% 4%) 0%, hsl(222 47% 8%) 50%, hsl(222 47% 12%) 100%);
+    --gradient-card: linear-gradient(145deg, hsl(222 47% 10% / 0.8), hsl(222 47% 6% / 0.6));
+    --gradient-glow: radial-gradient(ellipse at center, hsl(174 72% 56% / 0.15) 0%, transparent 70%);
+    
+    /* Glassmorphism */
+    --glass-bg: hsl(222 47% 10% / 0.7);
+    --glass-border: hsl(210 40% 98% / 0.1);
+    --glass-shadow: 0 8px 32px hsl(222 47% 4% / 0.4);
+    
+    /* Shadows */
+    --shadow-glow: 0 0 60px hsl(174 72% 56% / 0.3);
+    --shadow-card: 0 20px 50px hsl(222 47% 4% / 0.5);
+    --shadow-float: 0 10px 40px hsl(222 47% 4% / 0.3);
+
+    --sidebar-background: 222 47% 8%;
+    --sidebar-foreground: 210 40% 98%;
+    --sidebar-primary: 174 72% 56%;
+    --sidebar-primary-foreground: 222 47% 6%;
+    --sidebar-accent: 222 40% 15%;
+    --sidebar-accent-foreground: 210 40% 98%;
+    --sidebar-border: 222 40% 18%;
+    --sidebar-ring: 174 72% 56%;
+  }
+
+  .dark {
+    --background: 222 47% 6%;
+    --foreground: 210 40% 98%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    @apply bg-background text-foreground font-sans antialiased;
+    font-family: 'Sora', sans-serif;
+  }
+}
+
+@layer components {
+  .glass-panel {
+    @apply bg-card/70 backdrop-blur-xl border border-white/10 shadow-xl;
+  }
+
+  .glass-button {
+    @apply bg-white/5 backdrop-blur-md border border-white/10 hover:bg-white/10 transition-all duration-300;
+  }
+
+  .glow-text {
+    text-shadow: 0 0 40px hsl(var(--primary) / 0.5);
+  }
+
+  .glow-box {
+    box-shadow: 0 0 60px hsl(var(--primary) / 0.2), inset 0 0 60px hsl(var(--primary) / 0.05);
+  }
+
+  .floating-icon {
+    @apply transition-all duration-500 ease-out cursor-pointer;
+  }
+
+  .floating-icon:hover {
+    transform: translateY(-10px) scale(1.1);
+    filter: drop-shadow(0 20px 40px hsl(var(--primary) / 0.4));
+  }
+
+  .gradient-text {
+    @apply bg-clip-text text-transparent;
+    background-image: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--secondary)));
+  }
+
+  .gradient-border {
+    position: relative;
+  }
+
+  .gradient-border::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    padding: 1px;
+    background: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--secondary)));
+    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+  }
+}
+
+@layer utilities {
+  .animate-float {
+    animation: float 6s ease-in-out infinite;
+  }
+
+  .animate-float-delayed {
+    animation: float 6s ease-in-out infinite 2s;
+  }
+
+  .animate-pulse-glow {
+    animation: pulse-glow 3s ease-in-out infinite;
+  }
+
+  .animate-spin-slow {
+    animation: spin 20s linear infinite;
+  }
+
+  @keyframes float {
+    0%, 100% {
+      transform: translateY(0px);
+    }
+    50% {
+      transform: translateY(-20px);
+    }
+  }
+
+  @keyframes pulse-glow {
+    0%, 100% {
+      opacity: 0.5;
+      transform: scale(1);
+    }
+    50% {
+      opacity: 1;
+      transform: scale(1.05);
+    }
+  }
+}
