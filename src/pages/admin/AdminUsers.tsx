@@ -16,7 +16,7 @@ export default function AdminUsers() {
         <DashboardLayout>
             <div className="flex justify-between items-center mb-6">
                 <h1 className="text-3xl font-bold">Gestion des Utilisateurs</h1>
-                <Button>Ajouter un utilisateur</Button>
+                <Button>Ajouter des utilisateurs</Button>
             </div>
 
             <div className="rounded-md border bg-card">

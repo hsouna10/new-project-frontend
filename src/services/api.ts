@@ -55,6 +55,21 @@ export const doctorService = {
         const response = await api.get('/doctors');
         return response.data;
     },
+    updateDoctor: async (id: string, doctorData: any) => {
+        const response = await api.patch(`/doctors/${id}`, doctorData);
+        return response.data;
+    },
+};
+
+export const patientService = {
+    getAllPatients: async () => {
+        const response = await api.get('/patients');
+        return response.data;
+    },
+    updatePatient: async (id: string, patientData: any) => {
+        const response = await api.put(`/patients/${id}`, patientData);
+        return response.data;
+    },
 };
 
 export const appointmentService = {
