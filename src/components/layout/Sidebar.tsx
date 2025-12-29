@@ -15,7 +15,8 @@ import {
     User,
     Search,
     Menu,
-    X
+    X,
+    Activity
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useState } from 'react';
@@ -39,6 +40,7 @@ export default function Sidebar() {
                     { path: '/dashboard/patient/search', icon: Search, label: 'Rechercher Médecin' },
                     { path: '/dashboard/patient/appointments', icon: Calendar, label: 'Mes Rendez-vous' },
                     { path: '/dashboard/patient/chatbot', icon: MessageSquare, label: 'Chatbot' },
+                    { path: '/dashboard/patient/health-3d', icon: Activity, label: 'Santé 3D' },
                     { path: '/dashboard/patient/profile', icon: User, label: 'Mon Profil' },
                 ];
             case 'doctor':

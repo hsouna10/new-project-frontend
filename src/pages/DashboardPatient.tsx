@@ -307,7 +307,7 @@ export default function DashboardPatient() {
 
       {/* Booking Dialog */}
       <Dialog open={isBookingOpen} onOpenChange={setIsBookingOpen}>
-        <DialogContent className="sm:max-w-[500px] border-none shadow-2xl bg-white dark:bg-zinc-950/95 backdrop-blur-xl">
+        <DialogContent className="sm:max-w-[500px] border-white/10 shadow-2xl bg-zinc-950/95 backdrop-blur-xl text-foreground">
           <DialogHeader className="space-y-4 pb-4 border-b border-border/10">
             <DialogTitle className="text-2xl font-bold flex items-center gap-2">
               <div className="p-2 rounded-xl bg-primary/10 text-primary">
@@ -500,7 +500,7 @@ export default function DashboardPatient() {
                   value={inputMessage}
                   onChange={(e) => setInputMessage(e.target.value)}
                   onKeyPress={(e) => e.key === 'Enter' && handleSendMessage()}
-                  className="bg-muted/50 border-white/10 rounded-xl"
+                  className="bg-muted/50 border-white/10 rounded-xl text-foreground placeholder:text-muted-foreground"
                 />
                 <Button
                   size="icon"

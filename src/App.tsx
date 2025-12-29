@@ -25,6 +25,7 @@ import PatientSearch from "./pages/patient/PatientSearch";
 import PatientAppointments from "./pages/patient/PatientAppointments";
 import PatientChatbot from "./pages/patient/PatientChatbot";
 import PatientProfile from "./pages/patient/PatientProfile";
+import Health3D from "./pages/patient/Health3D";
 import AdminUsers from "./pages/admin/AdminUsers";
 
 // Placeholder for Admin pages not yet fully implemented due to task scope/disk space caution
@@ -92,6 +93,11 @@ const App = () => (
             <Route path="/dashboard/patient/profile" element={
               <ProtectedRoute allowedRoles={['patient']}>
                 <PatientProfile />
+              </ProtectedRoute>
+            } />
+            <Route path="/dashboard/patient/health-3d" element={
+              <ProtectedRoute allowedRoles={['patient']}>
+                <Health3D />
               </ProtectedRoute>
             } />
 
