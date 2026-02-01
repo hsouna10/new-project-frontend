@@ -241,3 +241,4 @@ export default function HumanBody3D(props: HumanBody3DProps) {
         </div>
     );
 }
+

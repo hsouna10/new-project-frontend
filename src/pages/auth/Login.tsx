@@ -57,7 +57,7 @@ export default function Login() {
                     <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-medical-teal to-medical-blue flex items-center justify-center mb-4">
                         <Stethoscope className="w-6 h-6 text-white" />
                     </div>
-                    <h1 className="text-4xl font-bold mb-4">Bienvenue sur MediConnect</h1>
+                    <h1 className="text-4xl font-bold mb-4">Bienvenue sur sahtyy</h1>
                     <p className="text-lg text-muted-foreground">
                         Votre plateforme de santé connectée pour une gestion simplifiée de vos soins et de votre pratique médicale.
                     </p>

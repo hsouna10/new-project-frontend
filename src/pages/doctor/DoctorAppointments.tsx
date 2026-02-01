@@ -7,10 +7,13 @@ import { Badge } from "@/components/ui/badge";
 import { appointmentService, authService } from "@/services/api";
 import { useToast } from "@/components/ui/use-toast";
 import { motion, AnimatePresence } from "framer-motion";
+import { JournalEntryDialog } from "@/components/doctor/JournalEntryDialog";
 
 export default function DoctorAppointments() {
     const [appointments, setAppointments] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
+    const [selectedPatient, setSelectedPatient] = useState<{ id: string; name: string } | null>(null);
+    const [isJournalDialogOpen, setIsJournalDialogOpen] = useState(false);
     const { toast } = useToast();
 
     useEffect(() => {
@@ -20,19 +23,12 @@ export default function DoctorAppointments() {
     const fetchAppointments = async () => {
         try {
             const currentUser = authService.getCurrentUser();
-            // Assuming currentUser has a linked doctor profile ID or is the doctor
-            // Backend expects doctor ID. 
-            // If user is a doctor, we need their profile ID.
-            // If the backend `getDoctorAppointments` route expects UserID, then `currentUser._id` is fine.
-            // But usually it's Doctor Profile ID. 
-            // Let's try utilizing the user ID first as most systems verify user.
-            // If it returns 404 "Médecin introuvable", we know we need a profile ID lookup.
             if (currentUser) {
                 const id = currentUser._id || currentUser.id;
                 const response = await appointmentService.getDoctorAppointments(id);
                 if (response?.data?.app) {
                     setAppointments(response.data.app);
-                } else if (Array.isArray(response)) { // Fallback
+                } else if (Array.isArray(response)) {
                     setAppointments(response);
                 }
             }
@@ -52,13 +48,12 @@ export default function DoctorAppointments() {
         try {
             await appointmentService.updateAppointmentStatus(id, newStatus);
 
-            // Optimistic update
             setAppointments(appointments.map(app =>
                 app._id === id ? { ...app, status: newStatus } : app
             ));
 
             toast({
-                title: status === 'confirmed' ? "Rendez-vous accepté" : "Rendez-vous refusé",
+                title: newStatus === 'confirmed' ? "Rendez-vous accepté" : "Rendez-vous refusé",
                 className: newStatus === 'confirmed' ? "bg-green-600 text-white" : "bg-red-600 text-white",
             });
         } catch (error) {
@@ -70,8 +65,13 @@ export default function DoctorAppointments() {
         }
     };
 
+    const handleOpenJournal = (patientId: string, firstName: string, lastName: string) => {
+        setSelectedPatient({ id: patientId, name: `${firstName} ${lastName}` });
+        setIsJournalDialogOpen(true);
+    };
+
     const getStatusBadge = (status: string) => {
-        switch (status) { // Handling various status strings
+        switch (status) {
             case 'confirmed':
             case 'accepted':
                 return <Badge className="bg-green-500/10 text-green-600 hover:bg-green-500/20 border-green-200">Confirmé</Badge>;
@@ -148,6 +148,21 @@ export default function DoctorAppointments() {
                                             {getStatusBadge(appointment.status)}
                                         </div>
 
+                                        {(appointment.status === 'confirmed' || appointment.status === 'completed' || appointment.status === 'accepted') && (
+                                            <Button
+                                                size="sm"
+                                                variant="outline"
+                                                className="border-primary/20 hover:bg-primary/5 mr-2"
+                                                onClick={() => handleOpenJournal(
+                                                    appointment.patient?._id,
+                                                    appointment.patient?.prenom,
+                                                    appointment.patient?.nom
+                                                )}
+                                            >
+                                                <FileText className="h-4 w-4 mr-1.5" /> Journal
+                                            </Button>
+                                        )}
+
                                         {appointment.status === 'pending' && (
                                             <div className="flex gap-2">
                                                 <Button
@@ -183,6 +198,15 @@ export default function DoctorAppointments() {
                         ))}
                     </AnimatePresence>
                 </div>
+            )}
+
+            {selectedPatient && (
+                <JournalEntryDialog
+                    isOpen={isJournalDialogOpen}
+                    onClose={() => setIsJournalDialogOpen(false)}
+                    patientId={selectedPatient.id}
+                    patientName={selectedPatient.name}
+                />
             )}
         </DashboardLayout>
     );

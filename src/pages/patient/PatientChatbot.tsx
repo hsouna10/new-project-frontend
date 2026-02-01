@@ -29,7 +29,7 @@ export default function PatientChatbot() {
         try {
             // Using full URL assuming backend is on 5000. 
             // In production this should be an env var.
-            const response = await fetch('http://localhost:5000/api/chat', {
+            const response = await fetch('https://new-project-backend-3v94.onrender.com/api/chat', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
@@ -63,9 +63,9 @@ export default function PatientChatbot() {
     return (
         <DashboardLayout>
             <div className="h-[calc(100vh-8rem)] flex flex-col max-w-4xl mx-auto">
-                <Card className="flex-1 flex flex-col shadow-lg border-medical-teal/20">
-                    <CardHeader className="border-b bg-medical-teal/5">
-                        <CardTitle className="flex items-center gap-2 text-medical-teal">
+                <Card className="flex-1 flex flex-col shadow-2xl border-white/10 bg-card/50 backdrop-blur-xl">
+                    <CardHeader className="border-b border-white/10 bg-white/5">
+                        <CardTitle className="flex items-center gap-2 text-primary">
                             <Bot className="h-6 w-6" />
                             Assistant Santé IA
                         </CardTitle>
@@ -76,30 +76,30 @@ export default function PatientChatbot() {
                                 {messages.map((msg, idx) => (
                                     <div key={idx} className={`flex gap-3 ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
                                         {msg.role === 'bot' && (
-                                            <div className="w-8 h-8 rounded-full bg-medical-teal/10 flex items-center justify-center flex-shrink-0 border border-medical-teal/20">
-                                                <Bot className="h-5 w-5 text-medical-teal" />
+                                            <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0 border border-primary/20">
+                                                <Bot className="h-5 w-5 text-primary" />
                                             </div>
                                         )}
                                         <div className={`max-w-[80%] rounded-2xl px-4 py-2 shadow-sm ${msg.role === 'user'
-                                            ? 'bg-medical-teal text-white rounded-tr-none'
-                                            : 'bg-white border border-gray-100 rounded-tl-none'
+                                            ? 'bg-primary text-primary-foreground rounded-tr-none'
+                                            : 'bg-muted/50 border border-white/10 rounded-tl-none text-foreground'
                                             }`}>
                                             <p className="text-sm leading-relaxed">{msg.content}</p>
                                         </div>
                                         {msg.role === 'user' && (
-                                            <div className="w-8 h-8 rounded-full bg-medical-teal flex items-center justify-center flex-shrink-0">
-                                                <User className="h-5 w-5 text-white" />
+                                            <div className="w-8 h-8 rounded-full bg-primary flex items-center justify-center flex-shrink-0">
+                                                <User className="h-5 w-5 text-primary-foreground" />
                                             </div>
                                         )}
                                     </div>
                                 ))}
                                 {isLoading && (
                                     <div className="flex gap-3 justify-start">
-                                        <div className="w-8 h-8 rounded-full bg-medical-teal/10 flex items-center justify-center flex-shrink-0 border border-medical-teal/20">
-                                            <Bot className="h-5 w-5 text-medical-teal" />
+                                        <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0 border border-primary/20">
+                                            <Bot className="h-5 w-5 text-primary" />
                                         </div>
-                                        <div className="bg-white border border-gray-100 rounded-2xl rounded-tl-none px-4 py-3 shadow-sm flex items-center gap-2">
-                                            <Loader2 className="h-4 w-4 animate-spin text-medical-teal" />
+                                        <div className="bg-muted/50 border border-white/10 rounded-2xl rounded-tl-none px-4 py-3 shadow-sm flex items-center gap-2">
+                                            <Loader2 className="h-4 w-4 animate-spin text-primary" />
                                             <span className="text-xs text-muted-foreground">En train d'écrire...</span>
                                         </div>
                                     </div>
@@ -108,7 +108,7 @@ export default function PatientChatbot() {
                             </div>
                         </ScrollArea>
                     </CardContent>
-                    <CardFooter className="p-4 border-t bg-gray-50/50">
+                    <CardFooter className="p-4 border-t border-white/10 bg-white/5">
                         <div className="flex w-full gap-2">
                             <Input
                                 placeholder="Posez votre question médicale..."
@@ -116,12 +116,12 @@ export default function PatientChatbot() {
                                 onChange={(e) => setInput(e.target.value)}
                                 onKeyDown={(e) => e.key === 'Enter' && handleSend()}
                                 disabled={isLoading}
-                                className="bg-white"
+                                className="bg-background/50 border-white/10 focus-visible:ring-primary"
                             />
                             <Button
                                 onClick={handleSend}
                                 size="icon"
-                                className="bg-medical-teal hover:bg-medical-teal/90 transition-colors"
+                                className="bg-primary hover:bg-primary/90 transition-colors text-primary-foreground"
                                 disabled={isLoading}
                             >
                                 <Send className="h-4 w-4" />

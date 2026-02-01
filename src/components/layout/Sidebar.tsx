@@ -16,7 +16,8 @@ import {
     Search,
     Menu,
     X,
-    Activity
+    Activity,
+    Map as MapIcon
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useState } from 'react';
@@ -38,9 +39,11 @@ export default function Sidebar() {
                 return [
                     { path: '/dashboard/patient', icon: Home, label: 'Accueil' },
                     { path: '/dashboard/patient/search', icon: Search, label: 'Rechercher Médecin' },
+                    { path: '/dashboard/patient/search?view=map', icon: MapIcon, label: 'Carte Médecins' },
                     { path: '/dashboard/patient/appointments', icon: Calendar, label: 'Mes Rendez-vous' },
                     { path: '/dashboard/patient/chatbot', icon: MessageSquare, label: 'Chatbot' },
                     { path: '/dashboard/patient/health-3d', icon: Activity, label: 'Santé 3D' },
+                    { path: '/dashboard/patient/reports', icon: FileText, label: 'Mes Rapports' },
                     { path: '/dashboard/patient/profile', icon: User, label: 'Mon Profil' },
                 ];
             case 'doctor':
@@ -49,6 +52,7 @@ export default function Sidebar() {
                     { path: '/dashboard/doctor/appointments', icon: Calendar, label: 'Rendez-vous' },
                     { path: '/dashboard/doctor/patients', icon: Users, label: 'Mes Patients' },
                     { path: '/dashboard/doctor/reports', icon: FileText, label: 'Rapports' },
+                    { path: '/dashboard/doctor/network', icon: Users, label: 'Confrères' },
                     { path: '/dashboard/doctor/profile', icon: User, label: 'Mon Profil' },
                 ];
             case 'admin':
@@ -92,7 +96,7 @@ export default function Sidebar() {
                         <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-medical-teal to-medical-blue flex-shrink-0 flex items-center justify-center">
                             <Stethoscope className="w-5 h-5 text-white" />
                         </div>
-                        {isOpen && <span className="font-bold text-lg whitespace-nowrap">MediConnect</span>}
+                        {isOpen && <span className="font-bold text-lg whitespace-nowrap">sahtyy</span>}
                     </div>
                     {isOpen && (
                         <Button variant="ghost" size="icon" className="ml-auto" onClick={() => setIsOpen(false)}>
@@ -171,7 +175,7 @@ export default function Sidebar() {
                                 <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-medical-teal to-medical-blue flex items-center justify-center">
                                     <Stethoscope className="w-5 h-5 text-white" />
                                 </div>
-                                <span className="font-bold text-lg">MediConnect</span>
+                                <span className="font-bold text-lg">sahtyy</span>
                             </div>
                             <Button variant="ghost" size="icon" onClick={() => setMobileOpen(false)}>
                                 <X className="h-5 w-5" />

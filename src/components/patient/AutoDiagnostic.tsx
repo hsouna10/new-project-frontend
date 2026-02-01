@@ -1,20 +1,22 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { RotateCcw, Check, ChevronRight, AlertCircle } from 'lucide-react';
+import { RotateCcw, Check, ChevronRight, AlertCircle, Loader2 } from 'lucide-react';
 import HumanBody3D from '@/components/three/HumanBody3D';
 import { Button } from '@/components/ui/button';
 import { Slider } from '@/components/ui/slider';
 import { bodyParts, PainPoint } from '@/data/mockHealthData';
 
 interface AutoDiagnosticProps {
-    onComplete?: (painPoints: PainPoint[]) => void;
+    initialPainPoints?: PainPoint[];
+    onComplete?: (painPoints: PainPoint[]) => void | Promise<void>;
 }
 
-export default function AutoDiagnostic({ onComplete }: AutoDiagnosticProps) {
+export default function AutoDiagnostic({ initialPainPoints = [], onComplete }: AutoDiagnosticProps) {
     const [selectedPart, setSelectedPart] = useState<string | null>(null);
     const [painIntensity, setPainIntensity] = useState(5);
-    const [painPoints, setPainPoints] = useState<PainPoint[]>([]);
+    const [painPoints, setPainPoints] = useState<PainPoint[]>(initialPainPoints);
     const [step, setStep] = useState<'select' | 'intensity' | 'complete'>('select');
+    const [isSaving, setIsSaving] = useState(false);
 
     const selectedPartData = bodyParts.find((p) => p.id === selectedPart);
 
@@ -44,9 +46,14 @@ export default function AutoDiagnostic({ onComplete }: AutoDiagnosticProps) {
         setPainPoints((prev) => prev.filter((p) => p.id !== id));
     };
 
-    const handleComplete = () => {
+    const handleComplete = async () => {
         setStep('complete');
-        onComplete?.(painPoints);
+        setIsSaving(true);
+        try {
+            await onComplete?.(painPoints);
+        } finally {
+            setIsSaving(false);
+        }
     };
 
     const getIntensityColor = (intensity: number) => {
@@ -222,7 +229,7 @@ export default function AutoDiagnostic({ onComplete }: AutoDiagnosticProps) {
                         <div className="space-y-3 max-h-[300px] overflow-y-auto">
                             {painPoints.map((point, index) => (
                                 <motion.div
-                                    key={point.id}
+                                    key={point.id || point._id || `pain-point-${index}`}
                                     initial={{ opacity: 0, x: -20 }}
                                     animate={{ opacity: 1, x: 0 }}
                                     transition={{ delay: index * 0.1 }}
@@ -273,9 +280,19 @@ export default function AutoDiagnostic({ onComplete }: AutoDiagnosticProps) {
                         <Button
                             className="w-full h-14 text-lg"
                             onClick={handleComplete}
+                            disabled={isSaving}
                         >
-                            Terminer l'auto-diagnostic
-                            <ChevronRight className="w-5 h-5 ml-2" />
+                            {isSaving ? (
+                                <>
+                                    <Loader2 className="w-5 h-5 mr-2 animate-spin" />
+                                    Enregistrement...
+                                </>
+                            ) : (
+                                <>
+                                    Terminer l'auto-diagnostic
+                                    <ChevronRight className="w-5 h-5 ml-2" />
+                                </>
+                            )}
                         </Button>
                     </motion.div>
                 )}

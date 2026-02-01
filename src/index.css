@@ -6,6 +6,74 @@
 
 @layer base {
   :root {
+    /* Light Mode (Default) */
+    --background: 0 0% 100%;
+    --foreground: 222 47% 11%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 222 47% 11%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 222 47% 11%;
+
+    --primary: 174 72% 51%;
+    /* Slightly darker teal for light mode contrast */
+    --primary-foreground: 210 40% 98%;
+
+    --secondary: 210 40% 96.1%;
+    --secondary-foreground: 222 47% 11.2%;
+
+    --muted: 210 40% 96.1%;
+    --muted-foreground: 215.4 16.3% 46.9%;
+
+    --accent: 210 40% 96.1%;
+    --accent-foreground: 222 47% 11.2%;
+
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 210 40% 98%;
+
+    --border: 214.3 31.8% 91.4%;
+    --input: 214.3 31.8% 91.4%;
+    --ring: 174 72% 51%;
+
+    --radius: 1rem;
+
+    /* Custom medical theme tokens - Light */
+    --medical-teal: 174 72% 51%;
+    --medical-teal-glow: 174 72% 60%;
+    --medical-blue: 230 65% 55%;
+    --medical-coral: 16 85% 65%;
+    --medical-purple: 270 60% 60%;
+    --medical-dark: 222 47% 11%;
+    --medical-dark-light: 222 47% 15%;
+
+    /* Gradients - Light */
+    --gradient-primary: linear-gradient(135deg, hsl(174 72% 51%), hsl(230 65% 55%));
+    --gradient-hero: linear-gradient(180deg, hsl(210 40% 98%) 0%, hsl(210 40% 96%) 50%, hsl(210 40% 94%) 100%);
+    --gradient-card: linear-gradient(145deg, #ffffff, #f8f9fa);
+    --gradient-glow: radial-gradient(ellipse at center, hsl(174 72% 51% / 0.15) 0%, transparent 70%);
+
+    /* Glassmorphism - Light */
+    --glass-bg: hsl(0 0% 100% / 0.7);
+    --glass-border: hsl(222 47% 11% / 0.1);
+    --glass-shadow: 0 8px 32px hsl(222 47% 11% / 0.1);
+
+    /* Shadows - Light */
+    --shadow-glow: 0 0 60px hsl(174 72% 51% / 0.2);
+    --shadow-card: 0 20px 50px hsl(222 47% 11% / 0.1);
+    --shadow-float: 0 10px 40px hsl(222 47% 11% / 0.1);
+
+    --sidebar-background: 0 0% 98%;
+    --sidebar-foreground: 222 47% 11%;
+    --sidebar-primary: 174 72% 51%;
+    --sidebar-primary-foreground: 210 40% 98%;
+    --sidebar-accent: 210 40% 96.1%;
+    --sidebar-accent-foreground: 222 47% 11.2%;
+    --sidebar-border: 220 13% 91%;
+    --sidebar-ring: 174 72% 51%;
+  }
+
+  .dark {
     --background: 222 47% 6%;
     --foreground: 210 40% 98%;
 
@@ -34,9 +102,7 @@
     --input: 222 40% 18%;
     --ring: 174 72% 56%;
 
-    --radius: 1rem;
-
-    /* Custom medical theme tokens */
+    /* Custom medical theme tokens - Dark */
     --medical-teal: 174 72% 56%;
     --medical-teal-glow: 174 72% 70%;
     --medical-blue: 230 65% 55%;
@@ -44,19 +110,19 @@
     --medical-purple: 270 60% 60%;
     --medical-dark: 222 47% 6%;
     --medical-dark-light: 222 47% 10%;
-    
-    /* Gradients */
+
+    /* Gradients - Dark */
     --gradient-primary: linear-gradient(135deg, hsl(174 72% 56%), hsl(230 65% 55%));
     --gradient-hero: linear-gradient(180deg, hsl(222 47% 4%) 0%, hsl(222 47% 8%) 50%, hsl(222 47% 12%) 100%);
     --gradient-card: linear-gradient(145deg, hsl(222 47% 10% / 0.8), hsl(222 47% 6% / 0.6));
     --gradient-glow: radial-gradient(ellipse at center, hsl(174 72% 56% / 0.15) 0%, transparent 70%);
-    
-    /* Glassmorphism */
+
+    /* Glassmorphism - Dark */
     --glass-bg: hsl(222 47% 10% / 0.7);
     --glass-border: hsl(210 40% 98% / 0.1);
     --glass-shadow: 0 8px 32px hsl(222 47% 4% / 0.4);
-    
-    /* Shadows */
+
+    /* Shadows - Dark */
     --shadow-glow: 0 0 60px hsl(174 72% 56% / 0.3);
     --shadow-card: 0 20px 50px hsl(222 47% 4% / 0.5);
     --shadow-float: 0 10px 40px hsl(222 47% 4% / 0.3);
@@ -69,11 +135,6 @@
     --sidebar-accent-foreground: 210 40% 98%;
     --sidebar-border: 222 40% 18%;
     --sidebar-ring: 174 72% 56%;
-  }
-
-  .dark {
-    --background: 222 47% 6%;
-    --foreground: 210 40% 98%;
   }
 }
 
@@ -139,6 +200,18 @@
     -webkit-mask-composite: xor;
     mask-composite: exclude;
   }
+
+  .glass-popup .leaflet-popup-content-wrapper {
+    @apply bg-card/80 backdrop-blur-xl border border-white/10 shadow-xl text-foreground rounded-xl p-0;
+  }
+
+  .glass-popup .leaflet-popup-tip {
+    @apply bg-card/80 backdrop-blur-xl border border-white/10;
+  }
+
+  .glass-popup .leaflet-popup-content {
+    margin: 0;
+  }
 }
 
 @layer utilities {
@@ -159,19 +232,25 @@
   }
 
   @keyframes float {
-    0%, 100% {
+
+    0%,
+    100% {
       transform: translateY(0px);
     }
+
     50% {
       transform: translateY(-20px);
     }
   }
 
   @keyframes pulse-glow {
-    0%, 100% {
+
+    0%,
+    100% {
       opacity: 0.5;
       transform: scale(1);
     }
+
     50% {
       opacity: 1;
       transform: scale(1.05);

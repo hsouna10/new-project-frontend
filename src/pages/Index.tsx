@@ -90,7 +90,7 @@ export default function Index() {
               transition={{ duration: 0.8, delay: 0.6 }}
               className="text-xl text-muted-foreground mb-8 max-w-2xl mx-auto"
             >
-              Explorez une nouvelle façon de gérer votre santé. Naviguez dans notre 
+              Explorez une nouvelle façon de gérer votre santé. Naviguez dans notre
               clinique virtuelle et accédez à tous vos services médicaux en un clic.
             </motion.p>
 
@@ -154,7 +154,7 @@ export default function Index() {
               <span className="gradient-text">Pourquoi nous choisir?</span>
             </h2>
             <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
-              Notre plateforme combine innovation technologique et excellence médicale 
+              Notre plateforme combine innovation technologique et excellence médicale
               pour vous offrir la meilleure expérience de santé digitale.
             </p>
           </motion.div>
@@ -198,7 +198,7 @@ export default function Index() {
               Prêt à transformer votre expérience médicale?
             </h2>
             <p className="text-muted-foreground text-lg mb-8 max-w-xl mx-auto">
-              Rejoignez des milliers de patients qui ont déjà adopté notre plateforme 
+              Rejoignez des milliers de patients qui ont déjà adopté notre plateforme
               pour une gestion de santé plus intelligente.
             </p>
             <Button
@@ -217,7 +217,7 @@ export default function Index() {
       <footer className="border-t border-border py-12 px-6">
         <div className="max-w-6xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
           <p className="text-muted-foreground text-sm">
-            © 2024 MediCare 3D. Tous droits réservés.
+            2026MediCare 3D. Tous droits réservés.
           </p>
           <div className="flex items-center gap-6">
             <a href="#" className="text-muted-foreground hover:text-foreground transition-colors text-sm">

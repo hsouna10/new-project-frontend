@@ -1,7 +1,17 @@
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
-import { ArrowRight, Activity, Shield, Clock, Users } from "lucide-react";
+import { ArrowRight, Activity, Shield, Clock, Users, Calendar } from "lucide-react";
 import { motion } from "framer-motion";
+import { mockMedicalArticles } from "@/data/mockMedicalArticles";
+import {
+    Card,
+    CardContent,
+    CardFooter,
+    CardHeader,
+    CardTitle,
+} from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 export default function Home() {
     return (
@@ -14,7 +24,7 @@ export default function Home() {
                             <Activity className="h-6 w-6 text-white" />
                         </div>
                         <span className="text-xl font-bold bg-gradient-to-r from-medical-teal to-medical-blue bg-clip-text text-transparent">
-                            MediConnect
+                            sahtyy
                         </span>
                     </div>
                     <div className="flex items-center gap-4">
@@ -89,10 +99,89 @@ export default function Home() {
                 </div>
             </section>
 
+            {/* Doctor Publications Section */}
+            <section className="py-20">
+                <div className="container mx-auto px-4">
+                    <motion.div
+                        initial={{ opacity: 0, y: 20 }}
+                        whileInView={{ opacity: 1, y: 0 }}
+                        viewport={{ once: true }}
+                        transition={{ duration: 0.5 }}
+                        className="text-center mb-12"
+                    >
+                        <h2 className="text-3xl md:text-4xl font-bold mb-4">
+                            Publications de nos <span className="bg-gradient-to-r from-medical-teal to-medical-blue bg-clip-text text-transparent">Experts</span>
+                        </h2>
+                        <p className="text-muted-foreground max-w-2xl mx-auto">
+                            Restez informé avec les derniers articles et conseils santé rédigés par nos médecins spécialistes.
+                        </p>
+                    </motion.div>
+
+                    <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+                        {mockMedicalArticles.map((article, index) => (
+                            <motion.div
+                                key={article.id}
+                                initial={{ opacity: 0, y: 20 }}
+                                whileInView={{ opacity: 1, y: 0 }}
+                                viewport={{ once: true }}
+                                transition={{ duration: 0.5, delay: index * 0.1 }}
+                            >
+                                <Card className="h-full hover:shadow-lg transition-all duration-300 border-none bg-card/50 backdrop-blur-sm ring-1 ring-border/50">
+                                    <div className="aspect-video w-full overflow-hidden rounded-t-xl bg-muted relative group">
+                                        <img
+                                            src={article.imageUrl}
+                                            alt={article.title}
+                                            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                                        />
+                                        <div className="absolute top-2 right-2">
+                                            <Badge variant="secondary" className="bg-background/80 backdrop-blur-md">
+                                                {article.category}
+                                            </Badge>
+                                        </div>
+                                    </div>
+                                    <CardHeader className="p-4">
+                                        <div className="flex items-center gap-2 mb-2 text-sm text-muted-foreground">
+                                            <Calendar className="w-3 h-3" />
+                                            <span>{article.date}</span>
+                                        </div>
+                                        <CardTitle className="line-clamp-2 text-lg hover:text-medical-teal transition-colors text-left">
+                                            {article.title}
+                                        </CardTitle>
+                                    </CardHeader>
+                                    <CardContent className="p-4 pt-0">
+                                        <p className="text-muted-foreground text-sm line-clamp-3 mb-4 text-left">
+                                            {article.excerpt}
+                                        </p>
+                                        <div className="flex items-center gap-3 pt-4 border-t">
+                                            <Avatar className="h-8 w-8">
+                                                <AvatarImage src={article.author.image} />
+                                                <AvatarFallback>{article.author.name.charAt(0)}</AvatarFallback>
+                                            </Avatar>
+                                            <div className="text-sm text-left">
+                                                <p className="font-medium leading-none">{article.author.name}</p>
+                                                <p className="text-muted-foreground text-xs">{article.author.specialty}</p>
+                                            </div>
+                                        </div>
+                                    </CardContent>
+                                    <CardFooter className="p-4 pt-0">
+                                        <Link to="/articles" className="w-full">
+                                            <Button variant="ghost" className="w-full justify-between group-hover:text-medical-teal">
+                                                Lire l'article
+                                                <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
+                                            </Button>
+                                        </Link>
+                                    </CardFooter>
+                                </Card>
+                            </motion.div>
+                        ))}
+                    </div>
+                </div>
+            </section>
+
             {/* Footer */}
             <footer className="border-t py-12 mt-auto">
                 <div className="container mx-auto px-4 text-center text-muted-foreground">
-                    <p>&copy; 2024 MediConnect. Tous droits réservés.</p>
+                    <p>&copy; 2024 sahtyy. Tous droits réservés.</p>
                 </div>
             </footer>
         </div>

@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_URL = 'http://localhost:5000/api';
+const API_URL = 'https://new-project-backend-3v94.onrender.com/api';
 
 const api = axios.create({
     baseURL: API_URL,
@@ -55,10 +55,15 @@ export const doctorService = {
         const response = await api.get('/doctors');
         return response.data;
     },
-    updateDoctor: async (id: string, doctorData: any) => {
-        const response = await api.patch(`/doctors/${id}`, doctorData);
-        return response.data;
+    update: async (id: string, doctorData: any) => {
+        return api.patch(`/doctors/${id}`, doctorData);
     },
+    async delete(id: string) {
+        return api.delete(`/doctors/${id}`);
+    },
+    async getStats() {
+        return api.get('/doctors/dashboard/stats');
+    }
 };
 
 export const patientService = {
@@ -93,6 +98,71 @@ export const appointmentService = {
         const response = await api.get('/appointments/accepte');
         return response.data;
     },
+};
+
+export const painPointService = {
+    createPainPoint: async (painPointData: any) => {
+        const response = await api.post('/painpoints', painPointData);
+        return response.data;
+    },
+    getMyPainPoints: async () => {
+        const response = await api.get('/painpoints/my');
+        return response.data;
+    },
+};
+
+export const rapportService = {
+    createRapport: async (rapportData: any) => {
+        const response = await api.post('/rapports', rapportData);
+        return response.data;
+    },
+    getMyRapports: async () => {
+        const response = await api.get('/rapports/mes');
+        return response.data;
+    },
+    getDoctorReports: async () => {
+        const response = await api.get('/rapports/docteur');
+        return response.data;
+    },
+    generateAIReport: async (painPoints: any[]) => {
+        const response = await api.post('/rapports/generer-ia', { painPoints });
+        return response.data;
+    },
+};
+
+export const journalService = {
+    createJournalEntry: async (entryData: any, patientId?: string) => {
+        const payload = {
+            type: entryData.type,
+            titre: entryData.title,
+            description: entryData.description,
+            // Add other fields if needed for creation
+            urlMemoVocal: entryData.voiceMemoUrl,
+            recommandations: entryData.recommendations,
+            patientId: patientId
+        };
+        const response = await api.post('/journal', payload);
+        return response.data;
+    },
+    getMyJournal: async () => {
+        const response = await api.get('/journal/mes');
+        return response.data;
+    },
+    generateSummary: async () => {
+        const response = await api.post('/journal/resume-ia');
+        return response.data;
+    },
+};
+
+export const userService = {
+    getAllUsers: async () => {
+        const response = await api.get('/users');
+        return response.data;
+    },
+    deleteUser: async (id: string) => {
+        const response = await api.delete(`/users/${id}`);
+        return response.data;
+    }
 };
 
 export default api;

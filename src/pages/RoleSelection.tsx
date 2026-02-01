@@ -89,7 +89,7 @@ const RoleSelection = () => {
         >
           <h1 className="text-4xl md:text-5xl font-bold mb-4">
             <span className="bg-gradient-to-r from-medical-teal to-medical-blue bg-clip-text text-transparent">
-              MediConnect
+              sahtyy
             </span>
           </h1>
           <p className="text-muted-foreground text-lg">
@@ -141,7 +141,7 @@ const RoleSelection = () => {
             </Link>
           </p>
           <p className="text-muted-foreground">
-            Nouveau sur MediConnect ?{" "}
+            Nouveau sur sahtyy ?{" "}
             <Link to="/signup" className="text-medical-teal hover:underline font-semibold">
               Créer un compte
             </Link>

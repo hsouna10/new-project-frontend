@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Search, MapPin, Star, Calendar, ChevronRight, MessageCircle, Clock, DollarSign, FileText } from 'lucide-react';
+import { Search, MapPin, Star, Calendar, ChevronRight, MessageCircle, Clock, DollarSign, FileText, LayoutList, Map as MapIcon } from 'lucide-react';
 import DashboardLayout from "@/components/layout/DashboardLayout";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -18,11 +18,20 @@ import {
 const specialties = ['Toutes', 'Généraliste', 'Cardiologue', 'Dermatologue', 'Pédiatre', 'Gynécologue', 'Ophtalmologue'];
 const regions = ['Toutes', 'Tunis', 'Sfax', 'Sousse', 'Bizerte', 'Gabès', 'Kairouan'];
 
+import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
+import DoctorMap from "@/components/patient/DoctorMap";
+
+import { useSearchParams } from 'react-router-dom';
+
 export default function PatientSearch() {
+    const [searchParams] = useSearchParams();
+    const initialView = searchParams.get('view') === 'map' ? 'map' : 'list';
+
     const [doctors, setDoctors] = useState<any[]>([]);
     const [selectedSpecialty, setSelectedSpecialty] = useState('Toutes');
     const [selectedRegion, setSelectedRegion] = useState('Toutes');
     const [searchQuery, setSearchQuery] = useState('');
+    const [viewMode, setViewMode] = useState<"list" | "map">(initialView);
 
     // Booking State
     const [isBookingOpen, setIsBookingOpen] = useState(false);
@@ -37,21 +46,22 @@ export default function PatientSearch() {
     const [bookingStatus, setBookingStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
 
     useEffect(() => {
+        const fetchDoctors = async () => {
+            try {
+                const response = await doctorService.getAllDoctors();
+                if (response?.data?.doctors) {
+                    setDoctors(response.data.doctors);
+                } else if (Array.isArray(response)) {
+                    setDoctors(response);
+                }
+            } catch (error) {
+                console.error("Failed to fetch doctors", error);
+            }
+        };
         fetchDoctors();
     }, []);
 
-    const fetchDoctors = async () => {
-        try {
-            const response = await doctorService.getAllDoctors();
-            if (response?.data?.doctors) {
-                setDoctors(response.data.doctors);
-            } else if (Array.isArray(response)) {
-                setDoctors(response);
-            }
-        } catch (error) {
-            console.error("Failed to fetch doctors", error);
-        }
-    };
+    // fetchDoctors moved inside useEffect
 
     const filteredDoctors = doctors.filter((doctor) => {
         const matchesSpecialty = selectedSpecialty === 'Toutes' || doctor.specialite === selectedSpecialty;
@@ -162,58 +172,96 @@ export default function PatientSearch() {
                 </div>
             </motion.div>
 
-            {/* Doctors Grid */}
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {filteredDoctors.map((doctor, index) => (
-                    <motion.div
-                        key={doctor.id || doctor._id || index}
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay: 0.2 + index * 0.1 }}
-                        className="glass-panel rounded-2xl p-6 group hover:border-primary/30 transition-all duration-300"
-                    >
-                        <div className="flex items-start gap-4">
-                            {/* Avatar */}
-                            <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-primary to-secondary flex items-center justify-center text-xl font-bold text-primary-foreground">
-                                {doctor.prenom?.[0]}{doctor.nom?.[0]}
-                            </div>
-
-                            {/* Info */}
-                            <div className="flex-1">
-                                <div className="mb-2">
-                                    <h3 className="text-lg font-semibold mb-1">Dr. {doctor.prenom} {doctor.nom}</h3>
-                                    <p className="text-primary text-sm font-medium">{doctor.specialite}</p>
-                                </div>
-
-                                <div className="space-y-2 text-sm text-muted-foreground mb-4">
-                                    <div className="flex items-center gap-1">
-                                        <MapPin className="w-4 h-4" />
-                                        <span>{doctor.city || 'Non renseigné'}</span>
-                                    </div>
-                                    <div className="flex items-center gap-1">
-                                        <Clock className="w-4 h-4" />
-                                        <span>{doctor.workTime || 'Non renseigné'}</span>
-                                    </div>
-                                    <div className="flex items-center gap-1 text-yellow-500">
-                                        <Star className="w-4 h-4 fill-current" />
-                                        <span className="font-medium">4.8</span>
-                                        <span className="text-muted-foreground">(120 avis)</span>
-                                    </div>
-                                </div>
-
-                                <Button
-                                    size="sm"
-                                    className="w-full bg-primary/10 text-primary hover:bg-primary hover:text-primary-foreground transition-all duration-300"
-                                    onClick={() => handleOpenBooking(doctor)}
-                                >
-                                    Prendre rendez-vous
-                                    <ChevronRight className="w-4 h-4 ml-1" />
-                                </Button>
-                            </div>
-                        </div>
-                    </motion.div>
-                ))}
+            {/* View Toggle */}
+            <div className="flex justify-end mb-6">
+                <ToggleGroup type="single" value={viewMode} onValueChange={(value) => value && setViewMode(value as "list" | "map")}>
+                    <ToggleGroupItem value="list" aria-label="Vue liste" className="data-[state=on]:bg-primary data-[state=on]:text-primary-foreground">
+                        <LayoutList className="h-4 w-4 mr-2" />
+                        Liste
+                    </ToggleGroupItem>
+                    <ToggleGroupItem value="map" aria-label="Vue carte" className="data-[state=on]:bg-primary data-[state=on]:text-primary-foreground">
+                        <MapIcon className="h-4 w-4 mr-2" />
+                        Carte
+                    </ToggleGroupItem>
+                </ToggleGroup>
             </div>
+
+            {/* Content */}
+            {viewMode === 'map' ? (
+                <motion.div
+                    initial={{ opacity: 0, scale: 0.95 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    transition={{ duration: 0.3 }}
+                >
+                    <DoctorMap
+                        doctors={filteredDoctors}
+                        selectedRegion={selectedRegion}
+                        onBookAppointment={handleOpenBooking}
+                    />
+                </motion.div>
+            ) : (
+                <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {filteredDoctors.map((doctor, index) => (
+                        <motion.div
+                            key={doctor.id || doctor._id || index}
+                            initial={{ opacity: 0, y: 20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ delay: 0.2 + index * 0.1 }}
+                            className="glass-panel rounded-2xl p-6 group hover:border-primary/30 transition-all duration-300"
+                        >
+                            <div className="flex items-start gap-4">
+                                {/* Avatar */}
+                                <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-primary to-secondary flex items-center justify-center text-xl font-bold text-primary-foreground">
+                                    {doctor.prenom?.[0]}{doctor.nom?.[0]}
+                                </div>
+
+                                {/* Info */}
+                                <div className="flex-1">
+                                    <div className="mb-2">
+                                        <h3 className="text-lg font-semibold mb-1">Dr. {doctor.prenom} {doctor.nom}</h3>
+                                        <p className="text-primary text-sm font-medium">{doctor.specialite}</p>
+                                    </div>
+
+                                    <div className="space-y-2 text-sm text-muted-foreground mb-4">
+                                        <div
+                                            className="flex items-center gap-1 cursor-pointer hover:text-primary transition-colors"
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                if (regions.includes(doctor.city)) {
+                                                    setSelectedRegion(doctor.city);
+                                                }
+                                                setViewMode('map');
+                                            }}
+                                            title="Voir sur la carte"
+                                        >
+                                            <MapPin className="w-4 h-4" />
+                                            <span>{doctor.city || 'Non renseigné'}</span>
+                                        </div>
+                                        <div className="flex items-center gap-1">
+                                            <Clock className="w-4 h-4" />
+                                            <span>{doctor.workTime || 'Non renseigné'}</span>
+                                        </div>
+                                        <div className="flex items-center gap-1 text-yellow-500">
+                                            <Star className="w-4 h-4 fill-current" />
+                                            <span className="font-medium">4.8</span>
+                                            <span className="text-muted-foreground">(120 avis)</span>
+                                        </div>
+                                    </div>
+
+                                    <Button
+                                        size="sm"
+                                        className="w-full bg-primary/10 text-primary hover:bg-primary hover:text-primary-foreground transition-all duration-300"
+                                        onClick={() => handleOpenBooking(doctor)}
+                                    >
+                                        Prendre rendez-vous
+                                        <ChevronRight className="w-4 h-4 ml-1" />
+                                    </Button>
+                                </div>
+                            </div>
+                        </motion.div>
+                    ))}
+                </div>
+            )}
 
             {filteredDoctors.length === 0 && (
                 <motion.div
@@ -229,7 +277,7 @@ export default function PatientSearch() {
 
             {/* Booking Dialog */}
             <Dialog open={isBookingOpen} onOpenChange={setIsBookingOpen}>
-                <DialogContent className="sm:max-w-[500px] border-none shadow-2xl bg-white dark:bg-zinc-950/95 backdrop-blur-xl">
+                <DialogContent className="sm:max-w-[500px] border border-white/10 shadow-2xl bg-card text-card-foreground backdrop-blur-xl">
                     <DialogHeader className="space-y-4 pb-4 border-b border-border/10">
                         <DialogTitle className="text-2xl font-bold flex items-center gap-2">
                             <div className="p-2 rounded-xl bg-primary/10 text-primary">
@@ -278,10 +326,19 @@ export default function PatientSearch() {
                                         </div>
                                         <Input
                                             type="date"
-                                            className="pl-10 h-11 bg-muted/30 border-muted-foreground/20 focus:bg-background transition-all"
+                                            className="pl-10 h-11 bg-muted/30 border-muted-foreground/20 focus:bg-background transition-all accent-primary"
                                             required
+                                            min={new Date().toISOString().split('T')[0]}
                                             value={bookingData.date}
-                                            onChange={(e) => setBookingData({ ...bookingData, date: e.target.value })}
+                                            onChange={(e) => {
+                                                const date = new Date(e.target.value);
+                                                const day = date.getDay();
+                                                if (day === 0 || day === 6) {
+                                                    alert("Les rendez-vous ne sont pas disponibles le week-end (Samedi et Dimanche). Veuillez choisir un jour de semaine.");
+                                                    return;
+                                                }
+                                                setBookingData({ ...bookingData, date: e.target.value });
+                                            }}
                                         />
                                     </div>
                                 </div>

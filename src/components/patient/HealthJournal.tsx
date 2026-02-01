@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
     Calendar,
@@ -13,17 +13,17 @@ import {
     Circle,
     Sparkles,
     ChevronDown,
-    ChevronUp
+    ChevronUp,
+    Import,
+    Loader2
 } from 'lucide-react';
 import { Canvas, useFrame } from '@react-three/fiber';
 import { Float, Stars } from '@react-three/drei';
 import * as THREE from 'three';
 import { Button } from '@/components/ui/button';
-import {
-    HealthJournalEntry,
-    mockHealthJournal,
-    mockAISummary
-} from '@/data/mockHealthData';
+import { useToast } from '@/components/ui/use-toast';
+import { journalService } from '@/services/api';
+import { HealthJournalEntry } from '@/data/mockHealthData';
 
 interface TimelineNodeProps {
     position: [number, number, number];
@@ -41,6 +41,7 @@ function TimelineNode({ position, isActive, type, onClick }: TimelineNodeProps) 
             case 'visit': return '#4DD9E5';
             case 'symptom': return '#F87171';
             case 'medication': return '#A78BFA';
+            default: return '#4DD9E5';
         }
     };
 
@@ -120,15 +121,32 @@ interface HealthJournalProps {
     showAISummary?: boolean;
 }
 
+interface AISummaryData {
+    synthesis: string;
+    synthesisDarija: string;
+}
+
 export default function HealthJournal({
-    entries = mockHealthJournal,
+    entries = [],
     showAISummary = true
 }: HealthJournalProps) {
+    const { toast } = useToast();
     const [activeIndex, setActiveIndex] = useState(0);
     const [isPlaying, setIsPlaying] = useState(false);
     const [showDarija, setShowDarija] = useState(false);
-    const [expandedEntry, setExpandedEntry] = useState<string | null>(entries[0]?.id || null);
+    const [expandedEntry, setExpandedEntry] = useState<string | null>(null);
     const [completedTasks, setCompletedTasks] = useState<string[]>([]);
+
+    // AI Summary State
+    const [aiSummary, setAiSummary] = useState<AISummaryData | null>(null);
+    const [isGeneratingSummary, setIsGeneratingSummary] = useState(false);
+
+    useEffect(() => {
+        if (entries.length > 0) {
+            setExpandedEntry(entries[0].id);
+            setActiveIndex(0);
+        }
+    }, [entries]);
 
     const activeEntry = entries[activeIndex];
 
@@ -167,6 +185,37 @@ export default function HealthJournal({
         }
     };
 
+    const generateAISummary = async () => {
+        setIsGeneratingSummary(true);
+        try {
+            const response = await journalService.generateSummary();
+            if (response.status === 'success') {
+                setAiSummary(response.data);
+                toast({
+                    title: "Synthèse générée",
+                    description: "L'IA a analysé votre historique avec succès",
+                });
+            }
+        } catch (error) {
+            console.error(error);
+            toast({
+                title: "Erreur",
+                description: "Impossible de générer la synthèse IA",
+                variant: "destructive"
+            });
+        } finally {
+            setIsGeneratingSummary(false);
+        }
+    };
+
+    if (entries.length === 0) {
+        return (
+            <div className="glass-panel rounded-2xl p-8 text-center text-muted-foreground">
+                <p>Aucune entrée dans votre journal de santé.</p>
+            </div>
+        );
+    }
+
     return (
         <div className="space-y-6">
             {/* 3D Timeline */}
@@ -175,10 +224,28 @@ export default function HealthJournal({
                 animate={{ opacity: 1, y: 0 }}
                 className="glass-panel rounded-2xl p-6"
             >
-                <h3 className="font-semibold mb-4 flex items-center gap-2">
-                    <Calendar className="w-4 h-4 text-primary" />
-                    Timeline de Santé
-                </h3>
+                <div className="flex items-center justify-between mb-4">
+                    <h3 className="font-semibold flex items-center gap-2">
+                        <Calendar className="w-4 h-4 text-primary" />
+                        Timeline de Santé
+                    </h3>
+                    {showAISummary && !aiSummary && (
+                        <Button
+                            size="sm"
+                            variant="outline"
+                            className="glass-button"
+                            onClick={generateAISummary}
+                            disabled={isGeneratingSummary}
+                        >
+                            {isGeneratingSummary ? (
+                                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                            ) : (
+                                <Sparkles className="w-4 h-4 mr-2 text-medical-purple" />
+                            )}
+                            Générer Synthèse IA
+                        </Button>
+                    )}
+                </div>
 
                 <div className="h-[200px] rounded-xl overflow-hidden bg-background/50">
                     <Timeline3D
@@ -189,26 +256,25 @@ export default function HealthJournal({
                 </div>
 
                 {/* Date indicators */}
-                <div className="flex justify-between mt-4 px-4">
+                <div className="flex justify-between mt-4 px-4 overflow-x-auto gap-4">
                     {entries.map((entry, index) => (
                         <button
                             key={entry.id}
                             onClick={() => setActiveIndex(index)}
-                            className={`text-xs transition-colors ${index === activeIndex ? 'text-primary font-medium' : 'text-muted-foreground'
+                            className={`text-xs transition-colors whitespace-nowrap ${index === activeIndex ? 'text-primary font-medium' : 'text-muted-foreground'
                                 }`}
                         >
-                            {entry.date.split('-').slice(1).join('/')}
+                            {new Date(entry.date).toLocaleDateString()}
                         </button>
                     ))}
                 </div>
             </motion.div>
 
             {/* AI Summary */}
-            {showAISummary && (
+            {aiSummary && (
                 <motion.div
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.1 }}
                     className="glass-panel rounded-2xl p-6 border-primary/20"
                 >
                     <div className="flex items-center justify-between mb-4">
@@ -216,19 +282,29 @@ export default function HealthJournal({
                             <Sparkles className="w-4 h-4 text-primary" />
                             Synthèse IA de l'historique
                         </h3>
-                        <Button
-                            variant="outline"
-                            size="sm"
-                            className="glass-button"
-                            onClick={() => setShowDarija(!showDarija)}
-                        >
-                            {showDarija ? 'Français' : 'Darija'}
-                        </Button>
+                        <div className="flex gap-2">
+                            <Button
+                                variant="outline"
+                                size="sm"
+                                className="glass-button"
+                                onClick={() => setShowDarija(!showDarija)}
+                            >
+                                {showDarija ? 'Français' : 'Darija'}
+                            </Button>
+                            <Button
+                                variant="ghost"
+                                size="icon"
+                                className="h-8 w-8 text-muted-foreground hover:text-foreground"
+                                onClick={() => setAiSummary(null)}
+                            >
+                                <Import className="w-4 h-4 rotate-45" />
+                            </Button>
+                        </div>
                     </div>
 
                     <div className="p-4 rounded-xl bg-primary/5 border border-primary/10">
-                        <p className={`text-sm leading-relaxed ${showDarija ? 'text-right' : ''}`}>
-                            {showDarija ? mockAISummary.synthesisDarija : mockAISummary.synthesis}
+                        <p className={`text-sm leading-relaxed ${showDarija ? 'text-right font-arabic' : ''}`}>
+                            {showDarija ? aiSummary.synthesisDarija : aiSummary.synthesis}
                         </p>
                     </div>
 
@@ -237,7 +313,7 @@ export default function HealthJournal({
                             variant="outline"
                             size="sm"
                             className="mt-3 glass-button"
-                            onClick={() => speakText(mockAISummary.synthesisDarija)}
+                            onClick={() => speakText(aiSummary.synthesisDarija)}
                         >
                             <Volume2 className="w-4 h-4 mr-2" />
                             Écouter
@@ -246,7 +322,7 @@ export default function HealthJournal({
                 </motion.div>
             )}
 
-            {/* Entry Details */}
+            {/* Entry Details Carousel */}
             <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -277,7 +353,7 @@ export default function HealthJournal({
                                     <h4 className="font-medium">{entry.title}</h4>
                                     <div className="flex items-center gap-2 text-xs text-muted-foreground mt-1">
                                         <Clock className="w-3 h-3" />
-                                        <span>{entry.date}</span>
+                                        <span>{new Date(entry.date).toLocaleDateString()}</span>
                                         {entry.doctorName && (
                                             <>
                                                 <span>•</span>
@@ -306,7 +382,7 @@ export default function HealthJournal({
                                         <p className="text-sm text-muted-foreground">{entry.description}</p>
 
                                         {/* Voice Memo */}
-                                        {entry.voiceMemoUrl && (
+                                        {(entry as any).urlMemoVocal && (
                                             <div className="flex items-center gap-3 p-3 rounded-lg bg-muted/30">
                                                 <Button
                                                     variant="outline"
@@ -331,17 +407,17 @@ export default function HealthJournal({
                                         )}
 
                                         {/* Recommendations Checklist */}
-                                        {entry.recommendations && entry.recommendations.length > 0 && (
+                                        {(entry as any).recommandations && (entry as any).recommandations.length > 0 && (
                                             <div>
                                                 <h5 className="text-sm font-medium mb-2">Ce que je dois faire</h5>
                                                 <div className="space-y-2">
-                                                    {entry.recommendations.map((rec) => (
+                                                    {(entry as any).recommandations.map((rec: any) => (
                                                         <button
-                                                            key={rec.id}
+                                                            key={rec._id || rec.id}
                                                             onClick={() => toggleTask(rec.id)}
                                                             className={`w-full flex items-center gap-3 p-2 rounded-lg text-left transition-colors ${completedTasks.includes(rec.id)
-                                                                    ? 'bg-primary/10'
-                                                                    : 'bg-muted/20 hover:bg-muted/30'
+                                                                ? 'bg-primary/10'
+                                                                : 'bg-muted/20 hover:bg-muted/30'
                                                                 }`}
                                                         >
                                                             {completedTasks.includes(rec.id) ? (

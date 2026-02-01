@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { motion } from "framer-motion";
 import DashboardLayout from "@/components/layout/DashboardLayout";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -113,7 +114,7 @@ export default function DoctorProfile() {
                 workTime: formData.workTime
             };
 
-            await doctorService.updateDoctor(doctorProfile._id, updatePayload);
+            await doctorService.update(doctorProfile._id, updatePayload);
 
             toast({
                 title: "Succès",
@@ -153,110 +154,164 @@ export default function DoctorProfile() {
     return (
         <DashboardLayout>
             <div className="max-w-4xl mx-auto">
-                <h1 className="text-3xl font-bold mb-8">Mon Profil Professionnel</h1>
+                <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.5 }}
+                    className="mb-8"
+                >
+                    <h1 className="text-3xl md:text-4xl font-bold mb-2">
+                        Mon Profil <span className="gradient-text">Professionnel</span>
+                    </h1>
+                    <p className="text-muted-foreground">Gérez vos informations publiques et privées.</p>
+                </motion.div>
 
                 <div className="grid md:grid-cols-3 gap-8">
                     {/* Left Column - Avatar & Basic Info */}
-                    <Card className="md:col-span-1">
-                        <CardContent className="pt-6 flex flex-col items-center text-center">
-                            <Avatar className="w-32 h-32 mb-4">
-                                <AvatarImage src={displayAvatar} />
-                                <AvatarFallback className="text-2xl bg-medical-teal text-white">
-                                    {displayName.charAt(0) || 'D'}
-                                </AvatarFallback>
-                            </Avatar>
+                    <motion.div
+                        initial={{ opacity: 0, x: -20 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ delay: 0.1 }}
+                        className="md:col-span-1"
+                    >
+                        <div className="glass-panel rounded-2xl p-6 flex flex-col items-center text-center relative overflow-hidden group">
+                            {/* Decorative background glow */}
+                            <div className="absolute top-0 inset-x-0 h-24 bg-gradient-to-b from-medical-teal/20 to-transparent" />
+
+                            <div className="relative mb-4">
+                                <div className="absolute inset-0 bg-medical-teal blur-2xl opacity-20 group-hover:opacity-40 transition-opacity duration-500" />
+                                <Avatar className="w-32 h-32 border-4 border-background shadow-xl relative z-10">
+                                    <AvatarImage src={displayAvatar} />
+                                    <AvatarFallback className="text-4xl font-bold bg-gradient-to-br from-medical-teal to-medical-blue text-white">
+                                        {displayName.charAt(0) || 'D'}
+                                    </AvatarFallback>
+                                </Avatar>
+                            </div>
+
                             <h2 className="text-xl font-bold mb-1">{displayName}</h2>
-                            <p className="text-sm text-muted-foreground mb-4">{formData.specialite || "Spécialité non définie"}</p>
-                            <Button variant="outline" className="w-full">Changer Photo</Button>
-                        </CardContent>
-                    </Card>
+                            <p className="text-sm text-medical-teal font-medium mb-4">{formData.specialite || "Spécialité non définie"}</p>
 
-                    {/* Right Column - Form */}
-                    <Card className="md:col-span-2">
-                        <CardHeader>
-                            <CardTitle>Informations Personnelles</CardTitle>
-                        </CardHeader>
-                        <CardContent className="space-y-4">
-                            <div className="grid grid-cols-2 gap-4">
-                                <div className="space-y-2">
-                                    <Label>Prénom</Label>
-                                    <Input
-                                        name="prenom"
-                                        value={formData.prenom}
-                                        onChange={handleChange}
-                                    />
+                            <div className="w-full space-y-3 mt-2">
+                                <div className="p-3 rounded-xl bg-muted/40 text-sm text-muted-foreground flex items-center justify-center gap-2">
+                                    <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
+                                    Compte Vérifié
                                 </div>
-                                <div className="space-y-2">
-                                    <Label>Nom</Label>
-                                    <Input
-                                        name="nom"
-                                        value={formData.nom}
-                                        onChange={handleChange}
-                                    />
-                                </div>
-                            </div>
-
-                            <div className="space-y-2">
-                                <Label>Email</Label>
-                                <Input
-                                    name="email"
-                                    value={formData.email}
-                                    disabled
-                                    className="bg-muted"
-                                    title="L'email ne peut pas être modifié ici"
-                                />
-                            </div>
-
-                            <div className="space-y-2">
-                                <Label>Téléphone</Label>
-                                <Input
-                                    name="telephone"
-                                    value={formData.telephone}
-                                    onChange={handleChange}
-                                />
-                            </div>
-
-                            <div className="space-y-2">
-                                <Label>Adresse Cabinet</Label>
-                                <Input
-                                    name="address"
-                                    value={formData.address}
-                                    onChange={handleChange}
-                                    placeholder="Ville / Adresse"
-                                />
-                            </div>
-
-                            <div className="space-y-2">
-                                <Label>Horaires de travail</Label>
-                                <Input
-                                    name="workTime"
-                                    value={formData.workTime}
-                                    onChange={handleChange}
-                                    placeholder="ex: 09:00 - 17:00"
-                                />
-                            </div>
-
-                            <div className="space-y-2">
-                                <Label>Spécialité</Label>
-                                <Input
-                                    name="specialite"
-                                    value={formData.specialite}
-                                    onChange={handleChange}
-                                />
-                            </div>
-
-                            <div className="pt-4 flex justify-end">
-                                <Button
-                                    className="bg-medical-teal hover:bg-medical-teal/90"
-                                    onClick={handleSubmit}
-                                    disabled={saving}
-                                >
-                                    {saving && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                                    Enregistrer les modifications
+                                <Button variant="outline" className="w-full border-white/10 hover:bg-white/5">
+                                    Changer Photo
                                 </Button>
                             </div>
-                        </CardContent>
-                    </Card>
+                        </div>
+                    </motion.div>
+
+                    {/* Right Column - Form */}
+                    <motion.div
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: 0.2 }}
+                        className="md:col-span-2"
+                    >
+                        <div className="glass-panel rounded-2xl p-6 md:p-8">
+                            <div className="flex items-center justify-between mb-6">
+                                <h3 className="text-xl font-semibold">Informations Personnelles</h3>
+                                <div className="px-3 py-1 rounded-full bg-medical-blue/10 text-medical-blue text-xs font-bold border border-medical-blue/20">
+                                    Mode Édition
+                                </div>
+                            </div>
+
+                            <div className="space-y-6">
+                                <div className="grid grid-cols-2 gap-6">
+                                    <div className="space-y-2">
+                                        <Label className="text-xs uppercase tracking-wider text-muted-foreground">Prénom</Label>
+                                        <Input
+                                            name="prenom"
+                                            value={formData.prenom}
+                                            onChange={handleChange}
+                                            className="bg-muted/30 border-white/10 focus:border-medical-teal/50 transition-colors h-11"
+                                        />
+                                    </div>
+                                    <div className="space-y-2">
+                                        <Label className="text-xs uppercase tracking-wider text-muted-foreground">Nom</Label>
+                                        <Input
+                                            name="nom"
+                                            value={formData.nom}
+                                            onChange={handleChange}
+                                            className="bg-muted/30 border-white/10 focus:border-medical-teal/50 transition-colors h-11"
+                                        />
+                                    </div>
+                                </div>
+
+                                <div className="space-y-2">
+                                    <Label className="text-xs uppercase tracking-wider text-muted-foreground">Email</Label>
+                                    <Input
+                                        name="email"
+                                        value={formData.email}
+                                        disabled
+                                        className="bg-muted/50 border-transparent text-muted-foreground cursor-not-allowed h-11"
+                                    />
+                                </div>
+
+                                <div className="grid grid-cols-2 gap-6">
+                                    <div className="space-y-2">
+                                        <Label className="text-xs uppercase tracking-wider text-muted-foreground">Téléphone</Label>
+                                        <Input
+                                            name="telephone"
+                                            value={formData.telephone}
+                                            onChange={handleChange}
+                                            className="bg-muted/30 border-white/10 focus:border-medical-teal/50 transition-colors h-11"
+                                        />
+                                    </div>
+                                    <div className="space-y-2">
+                                        <Label className="text-xs uppercase tracking-wider text-muted-foreground">Spécialité</Label>
+                                        <Input
+                                            name="specialite"
+                                            value={formData.specialite}
+                                            onChange={handleChange}
+                                            className="bg-muted/30 border-white/10 focus:border-medical-teal/50 transition-colors h-11"
+                                        />
+                                    </div>
+                                </div>
+
+                                <div className="space-y-2">
+                                    <Label className="text-xs uppercase tracking-wider text-muted-foreground">Adresse Cabinet</Label>
+                                    <Input
+                                        name="address"
+                                        value={formData.address}
+                                        onChange={handleChange}
+                                        placeholder="Ville / Adresse"
+                                        className="bg-muted/30 border-white/10 focus:border-medical-teal/50 transition-colors h-11"
+                                    />
+                                </div>
+
+                                <div className="space-y-2">
+                                    <Label className="text-xs uppercase tracking-wider text-muted-foreground">Horaires de travail</Label>
+                                    <Input
+                                        name="workTime"
+                                        value={formData.workTime}
+                                        onChange={handleChange}
+                                        placeholder="ex: 09:00 - 17:00"
+                                        className="bg-muted/30 border-white/10 focus:border-medical-teal/50 transition-colors h-11"
+                                    />
+                                </div>
+
+                                <div className="pt-6 flex justify-end">
+                                    <Button
+                                        className="bg-gradient-to-r from-medical-teal to-medical-blue hover:from-medical-teal/90 hover:to-medical-blue/90 text-white shadow-lg shadow-medical-teal/20 h-12 px-8"
+                                        onClick={handleSubmit}
+                                        disabled={saving}
+                                    >
+                                        {saving ? (
+                                            <>
+                                                <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+                                                Enregistrement...
+                                            </>
+                                        ) : (
+                                            "Enregistrer les modifications"
+                                        )}
+                                    </Button>
+                                </div>
+                            </div>
+                        </div>
+                    </motion.div>
                 </div>
             </div>
         </DashboardLayout>

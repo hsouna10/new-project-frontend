@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import DashboardLayout from "@/components/layout/DashboardLayout";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -6,9 +7,14 @@ import { Input } from "@/components/ui/input";
 import { Search, MapPin, Phone, FileText } from "lucide-react";
 import { appointmentService } from "@/services/api";
 
+import { JournalEntryDialog } from "@/components/doctor/JournalEntryDialog";
+
 export default function DoctorPatients() {
+    const navigate = useNavigate();
     const [patients, setPatients] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
+    const [selectedPatient, setSelectedPatient] = useState<{ id: string; name: string } | null>(null);
+    const [isJournalDialogOpen, setIsJournalDialogOpen] = useState(false);
 
     useEffect(() => {
         const fetchPatients = async () => {
@@ -37,6 +43,11 @@ export default function DoctorPatients() {
 
         fetchPatients();
     }, []);
+
+    const handleOpenJournal = (patientId: string, firstName: string, lastName: string) => {
+        setSelectedPatient({ id: patientId, name: `${firstName} ${lastName}` });
+        setIsJournalDialogOpen(true);
+    };
 
     return (
         <DashboardLayout>
@@ -67,7 +78,12 @@ export default function DoctorPatients() {
                                 <div className="w-10 h-10 rounded-full bg-teal-100 flex items-center justify-center text-teal-700 font-bold">
                                     {patient.prenom?.[0]}{patient.nom?.[0]}
                                 </div>
-                                <Button variant="ghost" size="icon">
+                                <Button
+                                    variant="ghost"
+                                    size="icon"
+                                    onClick={() => handleOpenJournal(patient._id, patient.prenom, patient.nom)}
+                                    title="Ajouter une note au journal"
+                                >
                                     <FileText className="h-4 w-4" />
                                 </Button>
                             </CardHeader>
@@ -92,11 +108,36 @@ export default function DoctorPatients() {
                                     </div>
                                 </div>
 
-                                <Button className="w-full mt-4" variant="outline">Voir Dossier</Button>
+                                <div className="flex gap-2 mt-4">
+                                    <Button
+                                        className="flex-1"
+                                        variant="outline"
+                                        onClick={() => navigate(`/dashboard/doctor/patient/${patient._id}`)}
+                                    >
+                                        Voir Dossier
+                                    </Button>
+                                    <Button
+                                        className="flex-1"
+                                        variant="default"
+                                        onClick={() => handleOpenJournal(patient._id, patient.prenom, patient.nom)}
+                                    >
+                                        <FileText className="w-4 h-4 mr-2" />
+                                        Journal
+                                    </Button>
+                                </div>
                             </CardContent>
                         </Card>
                     ))}
                 </div>
+            )}
+
+            {selectedPatient && (
+                <JournalEntryDialog
+                    isOpen={isJournalDialogOpen}
+                    onClose={() => setIsJournalDialogOpen(false)}
+                    patientId={selectedPatient.id}
+                    patientName={selectedPatient.name}
+                />
             )}
         </DashboardLayout>
     );

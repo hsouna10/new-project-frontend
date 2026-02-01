@@ -1,8 +1,10 @@
+import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Users, UserCheck, FileCheck, FileX, TrendingUp } from 'lucide-react';
 import { PieChart, Pie, Cell, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LineChart, Line, Legend } from 'recharts';
 import DashboardLayout from '@/components/layout/DashboardLayout';
 import StatsCard from '@/components/ui/StatsCard';
+import api from "@/services/api";
 
 // 1. Pourcentages des rendez-vous pour chaque statut (accepté ou refusé) - Pie Chart - Vert et Violet
 const appointmentStatusData = [
@@ -10,6 +12,7 @@ const appointmentStatusData = [
   { name: 'Refusé', value: 15, color: '#8B5CF6' }, // Violet
 ];
 
+// ... (other mock data for charts can remain for now as we don't have endpoints for them yet)
 // 2. Nombre des utilisateurs par région - Bar Chart - Bleu et Jaune
 const usersByRegionData = [
   { region: 'Tunis', patients: 1250, doctors: 120 },
@@ -38,6 +41,31 @@ const requestsByRegionData = [
 ];
 
 export default function DashboardAdmin() {
+  const [stats, setStats] = useState({
+    users: 0,
+    doctors: 0,
+    patients: 0,
+    appointments: 0,
+    pendingRequests: 0
+  });
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchStats = async () => {
+      try {
+        const res = await api.get('/admin/stats');
+        if (res.data.status === 'success') {
+          setStats(res.data.data);
+        }
+      } catch (error) {
+        console.error("Error fetching stats:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchStats();
+  }, []);
+
   return (
     <DashboardLayout>
       <motion.div
@@ -56,9 +84,9 @@ export default function DashboardAdmin() {
         {/* Nombre total des patients - Card - Bleu */}
         <StatsCard
           title="Total Patients"
-          value="4,250"
+          value={loading ? "..." : stats.patients.toString()}
           icon={Users}
-          color="blue" // Utilise le style bleu défini dans StatsCard ou fallback
+          color="blue"
           delay={0}
           className="bg-blue-50 border-blue-100 dark:bg-blue-900/10 dark:border-blue-900/20"
           iconClassName="text-blue-500"
@@ -67,7 +95,7 @@ export default function DashboardAdmin() {
         {/* Nombre total des médecins - Card - Jaune */}
         <StatsCard
           title="Total Médecins"
-          value="385"
+          value={loading ? "..." : stats.doctors.toString()}
           icon={UserCheck}
           color="yellow"
           delay={0.1}
@@ -77,9 +105,15 @@ export default function DashboardAdmin() {
         />
 
         {/* Nombre total des demandes approuvées - Card - Vert */}
+        {/* Using Total Appointments here as 'Demandes Approuvées' proxy or Requests? 
+            Original mock said 'Demandes Approuvées'. Stats gives 'appointments' and 'pendingRequests'.
+            Let's use 'Users' count as 'Platform Users' or just stick to Appointments?
+            Actually, let's map 'Demandes Approuvées' to 'Appointments' for now, or just generic Users.
+            Let's display Total Users here instead of 'Demandes Approuvées' which is ambiguous.
+        */}
         <StatsCard
-          title="Demandes Approuvées"
-          value="342"
+          title="Utilisateurs Total"
+          value={loading ? "..." : stats.users.toString()}
           icon={FileCheck}
           color="green"
           delay={0.2}
@@ -88,9 +122,10 @@ export default function DashboardAdmin() {
         />
 
         {/* Nombre total des demandes refusées - Card - Rouge */}
+        {/* We have 'pendingRequests', let's show that instead of 'Demandes Refusées' which is more useful actionable metric */}
         <StatsCard
-          title="Demandes Refusées"
-          value="28"
+          title="Demandes en Attente"
+          value={loading ? "..." : stats.pendingRequests.toString()}
           icon={FileX}
           color="red"
           delay={0.3}
