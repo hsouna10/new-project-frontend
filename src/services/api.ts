@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_URL = 'https://new-project-backend-3v94.onrender.com/api';
+const API_URL = 'http://localhost:5000/api'; // Changé pour le développement local
 
 const api = axios.create({
     baseURL: API_URL,
@@ -35,6 +35,14 @@ export const authService = {
     },
     login: async (email: string, motdepasse: string) => {
         const response = await api.post('/auth/login', { email, motdepasse });
+        if (response.data.token) {
+            const userWithToken = { ...response.data.data.user, token: response.data.token };
+            localStorage.setItem('user', JSON.stringify(userWithToken));
+        }
+        return response.data;
+    },
+    googleLogin: async (token: string) => {
+        const response = await api.post('/auth/google', { token });
         if (response.data.token) {
             const userWithToken = { ...response.data.data.user, token: response.data.token };
             localStorage.setItem('user', JSON.stringify(userWithToken));
@@ -163,6 +171,21 @@ export const userService = {
         const response = await api.delete(`/users/${id}`);
         return response.data;
     }
+};
+
+export const scanReport = async (image: File, patientId?: string) => {
+    const formData = new FormData();
+    formData.append('image', image);
+    if (patientId) {
+        formData.append('patientId', patientId);
+    }
+
+    const res = await api.post('/reports/scan', formData, {
+        headers: {
+            'Content-Type': 'multipart/form-data',
+        }
+    });
+    return res.data;
 };
 
 export default api;

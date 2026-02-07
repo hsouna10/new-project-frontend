@@ -6,7 +6,7 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useRole } from "@/contexts/RoleContext";
-import { Stethoscope, Lock, Mail, User, Phone, Briefcase, Clock } from "lucide-react";
+import { Stethoscope, Lock, Mail, Phone, MapPin } from "lucide-react";
 import { authService } from "@/services/api";
 
 export default function Signup() {
@@ -19,8 +19,7 @@ export default function Signup() {
         password: "",
         role: "patient",
         telephone: "",
-        specialite: "",
-        workTime: ""
+        localisation: ""
     });
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
@@ -31,28 +30,19 @@ export default function Signup() {
         setError(null);
 
         try {
-            // Backend roles: 'medecin', 'patient'
-            const backendRole = formData.role === 'doctor' ? 'medecin' : formData.role;
-
             const payload = {
                 email: formData.email,
                 motdepasse: formData.password,
-                rôle: backendRole,
+                rôle: "patient",
                 nom: formData.nom,
                 prenom: formData.prenom,
                 telephone: formData.telephone,
-                ...(backendRole === 'medecin' && {
-                    specialite: formData.specialite,
-                    workTime: formData.workTime
-                })
+                localisation: formData.localisation
             };
 
             const response = await authService.register(payload);
 
-            // API returns { status: 'success', token, data: { user } }
-            // authService.register returns response.data (the body)
-
-            const user = response.data?.user || response.user; // defensive
+            const user = response.data?.user || response.user;
             const role = user.rôle === 'medecin' ? 'doctor' : user.rôle;
 
             setRole(role);
@@ -158,53 +148,35 @@ export default function Signup() {
                             </div>
 
                             <div className="space-y-2">
+                                <Label htmlFor="localisation">Localisation</Label>
+                                <div className="relative">
+                                    <MapPin className="absolute left-3 top-2.5 h-5 w-5 text-muted-foreground" />
+                                    <Input
+                                        id="localisation"
+                                        placeholder="Ville ou adresse"
+                                        className="pl-10"
+                                        value={formData.localisation}
+                                        onChange={(e) => setFormData({ ...formData, localisation: e.target.value })}
+                                        required
+                                    />
+                                </div>
+                            </div>
+
+                            <div className="space-y-2">
                                 <Label htmlFor="role">Je suis</Label>
                                 <Select
                                     value={formData.role}
                                     onValueChange={(value) => setFormData({ ...formData, role: value })}
+                                    disabled
                                 >
                                     <SelectTrigger>
-                                        <SelectValue placeholder="Sélectionnez votre rôle" />
+                                        <SelectValue placeholder="Patient" />
                                     </SelectTrigger>
                                     <SelectContent>
                                         <SelectItem value="patient">Patient</SelectItem>
-                                        <SelectItem value="doctor">Professionnel de santé</SelectItem>
                                     </SelectContent>
                                 </Select>
                             </div>
-
-                            {formData.role === 'doctor' && (
-                                <>
-                                    <div className="space-y-2">
-                                        <Label htmlFor="specialite">Spécialité</Label>
-                                        <div className="relative">
-                                            <Briefcase className="absolute left-3 top-2.5 h-5 w-5 text-muted-foreground" />
-                                            <Input
-                                                id="specialite"
-                                                placeholder="Ex: Cardiologue"
-                                                className="pl-10"
-                                                value={formData.specialite}
-                                                onChange={(e) => setFormData({ ...formData, specialite: e.target.value })}
-                                                required
-                                            />
-                                        </div>
-                                    </div>
-                                    <div className="space-y-2">
-                                        <Label htmlFor="workTime">Horaires de travail</Label>
-                                        <div className="relative">
-                                            <Clock className="absolute left-3 top-2.5 h-5 w-5 text-muted-foreground" />
-                                            <Input
-                                                id="workTime"
-                                                placeholder="Ex: 8h - 17h"
-                                                className="pl-10"
-                                                value={formData.workTime}
-                                                onChange={(e) => setFormData({ ...formData, workTime: e.target.value })}
-                                                required
-                                            />
-                                        </div>
-                                    </div>
-                                </>
-                            )}
 
                             <div className="space-y-2">
                                 <Label htmlFor="password">Mot de passe</Label>

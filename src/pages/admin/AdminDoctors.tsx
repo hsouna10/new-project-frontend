@@ -16,6 +16,14 @@ import { CheckCircle, XCircle, Loader2, AlertCircle } from "lucide-react";
 import Swal from "sweetalert2";
 import api from "@/services/api"; // Assuming we'll add requests endpoints here or call directly
 import { useToast } from "@/components/ui/use-toast";
+import { Input } from "@/components/ui/input";
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from "@/components/ui/select";
 
 interface DoctorRequest {
     _id: string;
@@ -36,6 +44,9 @@ export default function AdminDoctors() {
     const { toast } = useToast();
     const [requests, setRequests] = useState<DoctorRequest[]>([]);
     const [loading, setLoading] = useState(true);
+    const [searchTerm, setSearchTerm] = useState("");
+    const [statusFilter, setStatusFilter] = useState("all");
+    const [specialtyFilter, setSpecialtyFilter] = useState("all");
 
     const fetchRequests = async () => {
         try {
@@ -56,6 +67,20 @@ export default function AdminDoctors() {
     useEffect(() => {
         fetchRequests();
     }, []);
+
+    const uniqueSpecialties = Array.from(new Set(requests.map(r => r.specialite))).filter(Boolean);
+
+    const filteredRequests = requests.filter(req => {
+        const fullName = `${req.senderId.prenom} ${req.senderId.nom}`.toLowerCase();
+        const matchesSearch = (
+            fullName.includes(searchTerm.toLowerCase()) ||
+            req.senderId.email.toLowerCase().includes(searchTerm.toLowerCase())
+        );
+        const matchesStatus = statusFilter === "all" || req.state === statusFilter;
+        const matchesSpecialty = specialtyFilter === "all" || req.specialite === specialtyFilter;
+
+        return matchesSearch && matchesStatus && matchesSpecialty;
+    });
 
     const handleAction = async (id: string, action: 'accepted' | 'rejected', doctorName: string) => {
         const result = await Swal.fire({
@@ -112,6 +137,44 @@ export default function AdminDoctors() {
             <h1 className="text-3xl font-bold mb-2">Demandes d'Inscription Médecins</h1>
             <p className="text-muted-foreground mb-8">Gérez les demandes d'accès à la plateforme.</p>
 
+            <div className="flex flex-col md:flex-row gap-4 mb-6">
+                <div className="flex-1">
+                    <Input
+                        placeholder="Rechercher par nom, prénom ou email..."
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                        className="max-w-md"
+                    />
+                </div>
+                <div className="flex gap-4">
+                    <Select value={statusFilter} onValueChange={setStatusFilter}>
+                        <SelectTrigger className="w-[180px]">
+                            <SelectValue placeholder="Statut" />
+                        </SelectTrigger>
+                        <SelectContent>
+                            <SelectItem value="all">Tous les statuts</SelectItem>
+                            <SelectItem value="pending">En attente</SelectItem>
+                            <SelectItem value="accepted">Accepté</SelectItem>
+                            <SelectItem value="rejected">Refusé</SelectItem>
+                        </SelectContent>
+                    </Select>
+
+                    <Select value={specialtyFilter} onValueChange={setSpecialtyFilter}>
+                        <SelectTrigger className="w-[180px]">
+                            <SelectValue placeholder="Spécialité" />
+                        </SelectTrigger>
+                        <SelectContent>
+                            <SelectItem value="all">Toutes les spécialités</SelectItem>
+                            {uniqueSpecialties.map((specialty) => (
+                                <SelectItem key={specialty} value={specialty}>
+                                    {specialty}
+                                </SelectItem>
+                            ))}
+                        </SelectContent>
+                    </Select>
+                </div>
+            </div>
+
             <div className="rounded-md border bg-white overflow-x-auto">
                 <Table>
                     <TableHeader>
@@ -125,15 +188,15 @@ export default function AdminDoctors() {
                         </TableRow>
                     </TableHeader>
                     <TableBody>
-                        {requests.length === 0 ? (
+                        {filteredRequests.length === 0 ? (
                             <TableRow>
                                 <TableCell colSpan={6} className="text-center py-8 text-muted-foreground">
                                     <AlertCircle className="h-12 w-12 mx-auto mb-2 opacity-20" />
-                                    Aucune demande en attente.
+                                    Aucune demande trouvée avec ces filtres.
                                 </TableCell>
                             </TableRow>
                         ) : (
-                            requests.map((req) => (
+                            filteredRequests.map((req) => (
                                 <TableRow key={req._id}>
                                     <TableCell className="font-medium">
                                         <div>

@@ -12,8 +12,12 @@ import {
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { useTranslation } from 'react-i18next';
+import LanguageSwitcher from "@/components/LanguageSwitcher";
 
 export default function Home() {
+    const { t } = useTranslation();
+
     return (
         <div className="min-h-screen bg-background flex flex-col">
             {/* Navbar */}
@@ -28,11 +32,19 @@ export default function Home() {
                         </span>
                     </div>
                     <div className="flex items-center gap-4">
+                        <Link to="/medical-tourism">
+                            <Button variant="ghost" className="text-medical-blue hover:text-medical-teal hover:bg-medical-teal/10">
+                                {t('nav.medical_tourism')}
+                            </Button>
+                        </Link>
+
+                        <LanguageSwitcher />
+
                         <Link to="/login">
-                            <Button variant="ghost">Connexion</Button>
+                            <Button variant="ghost">{t('nav.login')}</Button>
                         </Link>
                         <Link to="/signup">
-                            <Button className="bg-medical-teal hover:bg-medical-teal/90">S'inscrire</Button>
+                            <Button className="bg-medical-teal hover:bg-medical-teal/90">{t('nav.signup')}</Button>
                         </Link>
                     </div>
                 </div>
@@ -51,24 +63,20 @@ export default function Home() {
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ duration: 0.5 }}
                     >
-                        <h1 className="text-5xl md:text-7xl font-bold tracking-tight mb-6">
-                            Votre Santé, <br />
-                            <span className="bg-gradient-to-r from-medical-teal to-medical-blue bg-clip-text text-transparent">
-                                Notre Priorité
-                            </span>
+                        <h1 className="text-5xl md:text-7xl font-bold tracking-tight mb-6" dangerouslySetInnerHTML={{ __html: t('home.hero_title') }}>
                         </h1>
                         <p className="text-xl text-muted-foreground max-w-2xl mx-auto mb-10">
-                            Une plateforme unifiée pour gérer vos rendez-vous, vos dossiers médicaux et communiquer avec vos professionnels de santé en toute sécurité.
+                            {t('home.hero_subtitle')}
                         </p>
                         <div className="flex flex-col sm:flex-row gap-4 justify-center">
                             <Link to="/signup">
                                 <Button size="lg" className="h-12 px-8 text-lg bg-medical-teal hover:bg-medical-teal/90">
-                                    Commencer maintenant <ArrowRight className="ml-2 h-5 w-5" />
+                                    {t('home.cta_start')} <ArrowRight className="ml-2 h-5 w-5 rtl:rotate-180" />
                                 </Button>
                             </Link>
                             <Link to="/login">
                                 <Button size="lg" variant="outline" className="h-12 px-8 text-lg">
-                                    Accéder à mon espace
+                                    {t('home.cta_login')}
                                 </Button>
                             </Link>
                         </div>
@@ -82,18 +90,18 @@ export default function Home() {
                     <div className="grid md:grid-cols-3 gap-8">
                         <FeatureCard
                             icon={Clock}
-                            title="Prise de RDV 24/7"
-                            description="Réservez vos consultations en ligne à tout moment, sans attente téléphonique."
+                            title={t('home.features.clock_title')}
+                            description={t('home.features.clock_desc')}
                         />
                         <FeatureCard
                             icon={Shield}
-                            title="Données Sécurisées"
-                            description="Vos informations médicales sont cryptées et protégées selon les normes les plus strictes."
+                            title={t('home.features.shield_title')}
+                            description={t('home.features.shield_desc')}
                         />
                         <FeatureCard
                             icon={Users}
-                            title="Réseau d'Experts"
-                            description="Accédez à un large réseau de médecins généralistes et spécialistes qualifiés."
+                            title={t('home.features.users_title')}
+                            description={t('home.features.users_desc')}
                         />
                     </div>
                 </div>
@@ -110,10 +118,10 @@ export default function Home() {
                         className="text-center mb-12"
                     >
                         <h2 className="text-3xl md:text-4xl font-bold mb-4">
-                            Publications de nos <span className="bg-gradient-to-r from-medical-teal to-medical-blue bg-clip-text text-transparent">Experts</span>
+                            {t('home.publications.title')}
                         </h2>
                         <p className="text-muted-foreground max-w-2xl mx-auto">
-                            Restez informé avec les derniers articles et conseils santé rédigés par nos médecins spécialistes.
+                            {t('home.publications.subtitle')}
                         </p>
                     </motion.div>
 
@@ -133,7 +141,7 @@ export default function Home() {
                                             alt={article.title}
                                             className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                                         />
-                                        <div className="absolute top-2 right-2">
+                                        <div className="absolute top-2 right-2 rtl:right-auto rtl:left-2">
                                             <Badge variant="secondary" className="bg-background/80 backdrop-blur-md">
                                                 {article.category}
                                             </Badge>
@@ -144,12 +152,12 @@ export default function Home() {
                                             <Calendar className="w-3 h-3" />
                                             <span>{article.date}</span>
                                         </div>
-                                        <CardTitle className="line-clamp-2 text-lg hover:text-medical-teal transition-colors text-left">
+                                        <CardTitle className="line-clamp-2 text-lg hover:text-medical-teal transition-colors text-left rtl:text-right">
                                             {article.title}
                                         </CardTitle>
                                     </CardHeader>
                                     <CardContent className="p-4 pt-0">
-                                        <p className="text-muted-foreground text-sm line-clamp-3 mb-4 text-left">
+                                        <p className="text-muted-foreground text-sm line-clamp-3 mb-4 text-left rtl:text-right">
                                             {article.excerpt}
                                         </p>
                                         <div className="flex items-center gap-3 pt-4 border-t">
@@ -157,7 +165,7 @@ export default function Home() {
                                                 <AvatarImage src={article.author.image} />
                                                 <AvatarFallback>{article.author.name.charAt(0)}</AvatarFallback>
                                             </Avatar>
-                                            <div className="text-sm text-left">
+                                            <div className="text-sm text-left rtl:text-right">
                                                 <p className="font-medium leading-none">{article.author.name}</p>
                                                 <p className="text-muted-foreground text-xs">{article.author.specialty}</p>
                                             </div>
@@ -165,9 +173,9 @@ export default function Home() {
                                     </CardContent>
                                     <CardFooter className="p-4 pt-0">
                                         <Link to="/articles" className="w-full">
-                                            <Button variant="ghost" className="w-full justify-between group-hover:text-medical-teal">
-                                                Lire l'article
-                                                <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
+                                            <Button variant="ghost" className="w-full justify-between group-hover:text-medical-teal rtl:flex-row-reverse">
+                                                {t('home.publications.read_article')}
+                                                <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1 rtl:rotate-180 rtl:group-hover:-translate-x-1" />
                                             </Button>
                                         </Link>
                                     </CardFooter>
@@ -181,7 +189,7 @@ export default function Home() {
             {/* Footer */}
             <footer className="border-t py-12 mt-auto">
                 <div className="container mx-auto px-4 text-center text-muted-foreground">
-                    <p>&copy; 2024 sahtyy. Tous droits réservés.</p>
+                    <p>{t('footer.rights')}</p>
                 </div>
             </footer>
         </div>

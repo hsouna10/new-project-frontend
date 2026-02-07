@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -14,6 +14,7 @@ import {
 import { Plus, Trash2, Loader2, Check, Mic, FileText, ChevronLeft, StopCircle, User } from "lucide-react";
 import { journalService } from "@/services/api";
 import { useToast } from "@/components/ui/use-toast";
+import { io, Socket } from "socket.io-client";
 
 interface JournalEntryDialogProps {
     isOpen: boolean;
@@ -37,13 +38,95 @@ export function JournalEntryDialog({ isOpen, onClose, patientId, patientName }: 
     const [isRecording, setIsRecording] = useState(false);
     const [transcript, setTranscript] = useState("");
 
+    // Socket and MediaRecorder refs
+    const socketRef = useRef<Socket | null>(null);
+    const mediaRecorderRef = useRef<MediaRecorder | null>(null);
+    const streamRef = useRef<MediaStream | null>(null);
+    const audioChunksRef = useRef<Blob[]>([]);
+
+    // Initialize Socket.io connection
+    useEffect(() => {
+        socketRef.current = io("http://localhost:5000");
+
+        socketRef.current.on("connect", () => {
+            console.log("🎤 Connecté au serveur vocal");
+        });
+
+        socketRef.current.on("transcription", (data: { text: string }) => {
+            console.log("📝 Transcription reçue:", data.text);
+            setTranscript(data.text);
+        });
+
+        return () => {
+            if (socketRef.current) {
+                socketRef.current.disconnect();
+            }
+        };
+    }, []);
+
+    const startRecording = async () => {
+        try {
+            const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+            streamRef.current = stream;
+
+            const mediaRecorder = new MediaRecorder(stream);
+            mediaRecorderRef.current = mediaRecorder;
+            audioChunksRef.current = []; // Reset chunks
+
+            mediaRecorder.ondataavailable = (event) => {
+                if (event.data.size > 0) {
+                    audioChunksRef.current.push(event.data);
+                    console.log(`📦 Chunk enregistré: ${event.data.size} bytes`);
+                }
+            };
+
+            mediaRecorder.start(1000); // Collect chunks every 1 second
+            setIsRecording(true);
+        } catch (error) {
+            console.error("Erreur d'accès au microphone:", error);
+            toast({
+                title: "Erreur",
+                description: "Impossible d'accès au microphone.",
+                variant: "destructive"
+            });
+        }
+    };
+
+    const stopRecording = () => {
+        if (mediaRecorderRef.current && mediaRecorderRef.current.state !== "inactive") {
+            mediaRecorderRef.current.stop();
+
+            // Wait for final chunks and send complete audio
+            mediaRecorderRef.current.onstop = () => {
+                const audioBlob = new Blob(audioChunksRef.current, { type: 'audio/webm' });
+                console.log(`📦 Audio complet: ${audioBlob.size} bytes`);
+
+                // Convert to base64 and send
+                const reader = new FileReader();
+                reader.onloadend = () => {
+                    const base64 = reader.result as string;
+                    console.log("📤 Envoi de l'audio au serveur...");
+                    socketRef.current?.emit("audio", base64);
+                    socketRef.current?.emit("transcribe");
+                };
+                reader.readAsDataURL(audioBlob);
+            };
+        }
+
+        if (streamRef.current) {
+            streamRef.current.getTracks().forEach(track => track.stop());
+        }
+
+        setIsRecording(false);
+    };
+
     const handleReset = () => {
+        stopRecording();
         setEntryMode("selection");
         setTitle("");
         setDescription("");
         setRecommendations([]);
         setTranscript("");
-        setIsRecording(false);
     };
 
     const handleAddRec = () => {
@@ -141,12 +224,12 @@ export function JournalEntryDialog({ isOpen, onClose, patientId, patientName }: 
 
                             <div className="flex gap-4">
                                 {!isRecording ? (
-                                    <Button onClick={() => setIsRecording(true)} className="bg-red-500 hover:bg-red-600 text-white min-w-[150px]">
+                                    <Button onClick={startRecording} className="bg-red-500 hover:bg-red-600 text-white min-w-[150px]">
                                         <Mic className="w-4 h-4 mr-2" />
                                         Commencer
                                     </Button>
                                 ) : (
-                                    <Button onClick={() => setIsRecording(false)} variant="outline" className="border-red-200 text-red-600 hover:bg-red-50 min-w-[150px]">
+                                    <Button onClick={stopRecording} variant="outline" className="border-red-200 text-red-600 hover:bg-red-50 min-w-[150px]">
                                         <StopCircle className="w-4 h-4 mr-2" />
                                         Arrêter
                                     </Button>

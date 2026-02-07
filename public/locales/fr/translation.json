@@ -1,0 +1,146 @@
+{
+    "nav": {
+        "login": "Connexion",
+        "signup": "S'inscrire",
+        "medical_tourism": "Séjour Médical",
+        "dashboard": "Accéder à mon espace"
+    },
+    "home": {
+        "hero_title": "Votre Santé, <br /> Notre Priorité",
+        "hero_subtitle": "Une plateforme unifiée pour gérer vos rendez-vous, vos dossiers médicaux et communiquer avec vos professionnels de santé en toute sécurité.",
+        "cta_start": "Commencer maintenant",
+        "cta_login": "Accéder à mon espace",
+        "features": {
+            "clock_title": "Prise de RDV 24/7",
+            "clock_desc": "Réservez vos consultations en ligne à tout moment, sans attente téléphonique.",
+            "shield_title": "Données Sécurisées",
+            "shield_desc": "Vos informations médicales sont cryptées et protégées selon les normes les plus strictes.",
+            "users_title": "Réseau d'Experts",
+            "users_desc": "Accédez à un large réseau de médecins généralistes et spécialistes qualifiés."
+        },
+        "publications": {
+            "title": "Publications de nos Experts",
+            "subtitle": "Restez informé avec les derniers articles et conseils santé rédigés par nos médecins spécialistes.",
+            "read_article": "Lire l'article"
+        }
+    },
+    "medical_tourism": {
+        "hero_badge": "Medical Trip (Clé en main)",
+        "hero_title": "Votre Séjour Médical, <br /> Entièrement Organisé",
+        "hero_desc": "Sahty.tn organise votre séjour médical en Tunisie de A à Z. Nous combinons médecins certifiés, cliniques partenaires, hôtels confortables et transport sécurisé.",
+        "cta_plan": "Planifier mon voyage médical",
+        "items": {
+            "consultation": "Consultation médicale",
+            "clinic": "Clinique certifiée",
+            "hotel": "Hébergement partenaire",
+            "transport": "Transport aéroport & médical"
+        },
+        "hotels": {
+            "badge": "Hôtels Medical Friendly",
+            "title": "Hôtels Partenaires",
+            "desc": "Nos hôtels partenaires sont sélectionnés pour accueillir des patients internationaux dans les meilleures conditions de confort, de calme et de sécurité.",
+            "cards": {
+                "comfort": {
+                    "title": "Confort & Calme",
+                    "desc": "Chambres insonorisées et adaptées au repos post-opératoire."
+                },
+                "proximity": {
+                    "title": "Proximité",
+                    "desc": "Situés à moins de 15 min des cliniques partenaires."
+                },
+                "services": {
+                    "title": "Services Adaptés",
+                    "desc": "Menus spéciaux et assistance 24/7 pour les patients."
+                }
+            },
+            "partner_badge": "Hôtel Partenaire Sahty"
+        },
+        "transport": {
+            "badge": "Transport Sécurisé & Assistance Locale",
+            "title": "Transport Sécurisé & <br/>Assistance Personnalisée",
+            "desc": "Nous assurons vos déplacements dès votre arrivée en Tunisie, avec des chauffeurs professionnels et discrets.",
+            "items": {
+                "vip": "Accueil VIP à l’aéroport",
+                "private": "Transport privé Hôtel ↔ Clinique",
+                "assistance": "Assistance locale disponible 24/7"
+            }
+        },
+        "clinics": {
+            "badge": "Médecins & Cliniques Certifiés",
+            "title": "Cliniques & Médecins Certifiés",
+            "items": {
+                "degrees": {
+                    "title": "Diplômes Vérifiés",
+                    "desc": "Tous nos praticiens sont inscrits à l'ordre des médecins."
+                },
+                "experience": {
+                    "title": "Expérience Internationale",
+                    "desc": "Habitués à traiter une patientèle étrangère."
+                },
+                "equipment": {
+                    "title": "Équipements Modernes",
+                    "desc": "Plateaux techniques de dernière génération."
+                },
+                "standards": {
+                    "title": "Normes Médicales",
+                    "desc": "Respect strict des protocoles d'hygiène et sécurité."
+                }
+            },
+            "certified_badge": "Clinique Certifiée Sahty"
+        },
+        "packages": {
+            "title": "Packages Médicaux Tout Compris",
+            "desc": "Choisissez un package médical clair, sans frais cachés.",
+            "cta_view": "Voir le package",
+            "cta_all": "Voir tous les packages",
+            "items": {
+                "dental": "Dental Care",
+                "fertility": "Fertility / IVF",
+                "heart": "Heart Check-up",
+                "aesthetic": "Aesthetic"
+            }
+        },
+        "international": {
+            "badge": "Pour les Patients Internationaux",
+            "title": "Un accompagnement sans frontières",
+            "desc": "Nous accompagnons des patients venant d’Europe, d’Afrique et du Golfe avec un service personnalisé et adapté à chaque culture.",
+            "items": {
+                "online": {
+                    "title": "Consultations en ligne",
+                    "desc": "Discutez avec votre médecin avant de voyager."
+                },
+                "translation": {
+                    "title": "Traduction",
+                    "desc": "Rapports médicaux traduits dans votre langue."
+                },
+                "followup": {
+                    "title": "Suivi Post-opératoire",
+                    "desc": "Suivi continu une fois rentré chez vous."
+                }
+            }
+        },
+        "partner": {
+            "title": "Devenir Partenaire Sahty.tn",
+            "desc": "Rejoignez notre réseau de partenaires médicaux et touristiques et bénéficiez d’un flux régulier de patients internationaux qualifiés.",
+            "types": {
+                "hotels": "Hôtels",
+                "clinics": "Cliniques",
+                "centers": "Centres Médicaux",
+                "agencies": "Agences de Transport"
+            },
+            "cta": "Devenir partenaire"
+        },
+        "trust": {
+            "title": "Confiance, Transparence & Sécurité",
+            "desc": "Votre santé et vos données sont protégées par des standards internationaux.",
+            "items": {
+                "data": "Données Sécurisées",
+                "reviews": "Avis Vérifiés",
+                "transparency": "Transparence"
+            }
+        }
+    },
+    "footer": {
+        "rights": "© 2024 sahtyy. Tous droits réservés."
+    }
+}

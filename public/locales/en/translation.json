@@ -1,0 +1,146 @@
+{
+    "nav": {
+        "login": "Login",
+        "signup": "Sign Up",
+        "medical_tourism": "Medical Tourism",
+        "dashboard": "Access My Space"
+    },
+    "home": {
+        "hero_title": "Your Health, <br /> Our Priority",
+        "hero_subtitle": "A unified platform to manage your appointments, medical records, and communicate securely with your healthcare professionals.",
+        "cta_start": "Get Started",
+        "cta_login": "Access My Space",
+        "features": {
+            "clock_title": "24/7 Appointment Booking",
+            "clock_desc": "Book your consultations online anytime, without waiting on the phone.",
+            "shield_title": "Secure Data",
+            "shield_desc": "Your medical information is encrypted and protected according to the strictest standards.",
+            "users_title": "Network of Experts",
+            "users_desc": "Access a wide network of qualified general practitioners and specialists."
+        },
+        "publications": {
+            "title": "Publications from our Experts",
+            "subtitle": "Stay informed with the latest articles and health advice written by our specialist doctors.",
+            "read_article": "Read Article"
+        }
+    },
+    "medical_tourism": {
+        "hero_badge": "Medical Trip (Turnkey)",
+        "hero_title": "Your Medical Journey, <br /> Fully Organized",
+        "hero_desc": "Sahty.tn organizes your medical stay in Tunisia from A to Z. We combine certified doctors, partner clinics, comfortable hotels, and secure transport.",
+        "cta_plan": "Plan My Medical Trip",
+        "items": {
+            "consultation": "Medical Consultation",
+            "clinic": "Certified Clinic",
+            "hotel": "Partner Accommodation",
+            "transport": "Airport & Medical Transport"
+        },
+        "hotels": {
+            "badge": "Medical Friendly Hotels",
+            "title": "Partner Hotels",
+            "desc": "Our partner hotels are selected to welcome international patients in the best conditions of comfort, calm, and safety.",
+            "cards": {
+                "comfort": {
+                    "title": "Comfort & Calm",
+                    "desc": "Soundproof rooms adapted for post-operative rest."
+                },
+                "proximity": {
+                    "title": "Proximity",
+                    "desc": "Located less than 15 mins from partner clinics."
+                },
+                "services": {
+                    "title": "Adapted Services",
+                    "desc": "Special menus and 24/7 assistance for patients."
+                }
+            },
+            "partner_badge": "Sahty Partner Hotel"
+        },
+        "transport": {
+            "badge": "Safe Transport & Local Assistance",
+            "title": "Secure Transport & <br/>Personalized Assistance",
+            "desc": "We ensure your travel from your arrival in Tunisia, with professional and discreet drivers.",
+            "items": {
+                "vip": "VIP Airport Welcome",
+                "private": "Private Transport Hotel ↔ Clinic",
+                "assistance": "Local assistance available 24/7"
+            }
+        },
+        "clinics": {
+            "badge": "Certified Doctors & Clinics",
+            "title": "Certified Clinics & Doctors",
+            "items": {
+                "degrees": {
+                    "title": "Verified Degrees",
+                    "desc": "All our practitioners are registered with the medical council."
+                },
+                "experience": {
+                    "title": "International Experience",
+                    "desc": "Accustomed to treating foreign patients."
+                },
+                "equipment": {
+                    "title": "Modern Equipment",
+                    "desc": "State-of-the-art technical facilities."
+                },
+                "standards": {
+                    "title": "Medical Standards",
+                    "desc": "Strict complience with hygiene and safety protocols."
+                }
+            },
+            "certified_badge": "Sahty Certified Clinic"
+        },
+        "packages": {
+            "title": "All-Inclusive Medical Packages",
+            "desc": "Choose a clear medical package, with no hidden costs.",
+            "cta_view": "View Package",
+            "cta_all": "View All Packages",
+            "items": {
+                "dental": "Dental Care",
+                "fertility": "Fertility / IVF",
+                "heart": "Heart Check-up",
+                "aesthetic": "Aesthetic"
+            }
+        },
+        "international": {
+            "badge": "For International Patients",
+            "title": "Borderless Support",
+            "desc": "We support patients coming from Europe, Africa, and the Gulf with personalized service adapted to each culture.",
+            "items": {
+                "online": {
+                    "title": "Online Consultations",
+                    "desc": "Chat with your doctor before traveling."
+                },
+                "translation": {
+                    "title": "Translation",
+                    "desc": "Medical reports translated into your language."
+                },
+                "followup": {
+                    "title": "Post-operative Follow-up",
+                    "desc": "Continuous follow-up once you get back home."
+                }
+            }
+        },
+        "partner": {
+            "title": "Become a Sahty.tn Partner",
+            "desc": "Join our network of medical and tourism partners and benefit from a regular flow of qualified international patients.",
+            "types": {
+                "hotels": "Hotels",
+                "clinics": "Clinics",
+                "centers": "Medical Centers",
+                "agencies": "Transport Agencies"
+            },
+            "cta": "Become a Partner"
+        },
+        "trust": {
+            "title": "Trust, Transparency & Security",
+            "desc": "Your health and data are protected by international standards.",
+            "items": {
+                "data": "Secure Data",
+                "reviews": "Verified Reviews",
+                "transparency": "Transparency"
+            }
+        }
+    },
+    "footer": {
+        "rights": "© 2024 sahtyy. All rights reserved."
+    }
+}
