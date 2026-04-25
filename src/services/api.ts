@@ -24,6 +24,22 @@ api.interceptors.request.use(
     (error) => Promise.reject(error)
 );
 
+// Add a response interceptor to handle 401 errors
+api.interceptors.response.use(
+    (response) => response,
+    (error) => {
+        if (error.response && error.response.status === 401) {
+            console.warn("🔐 Session expired or user deleted. Clearing session.");
+            localStorage.removeItem('user');
+            if (window.location.pathname !== '/login') {
+                window.location.href = '/login';
+            }
+        }
+        return Promise.reject(error);
+    }
+);
+
+
 export const authService = {
     register: async (userData: any) => {
         const response = await api.post('/auth/register', userData);
@@ -160,6 +176,10 @@ export const journalService = {
         const response = await api.post('/journal/resume-ia');
         return response.data;
     },
+    getPatientJournal: async (patientId: string) => {
+        const response = await api.get(`/journal/patient/${patientId}`);
+        return response.data;
+    },
 };
 
 export const userService = {
@@ -186,6 +206,21 @@ export const scanReport = async (image: File, patientId?: string) => {
         }
     });
     return res.data;
+};
+
+export const gymService = {
+    getAllGyms: async () => {
+        const response = await api.get('/superadmin/gyms');
+        return response.data;
+    },
+    createGym: async (gymData: any) => {
+        const response = await api.post('/superadmin/gyms', gymData);
+        return response.data;
+    },
+    deleteGym: async (id: string) => {
+        const response = await api.delete(`/superadmin/gyms/${id}`);
+        return response.data;
+    }
 };
 
 export default api;

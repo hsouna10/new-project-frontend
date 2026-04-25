@@ -1,6 +1,6 @@
-import React, { createContext, useContext, useState, ReactNode } from 'react';
+import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 
-export type UserRole = 'visitor' | 'patient' | 'doctor' | 'admin';
+export type UserRole = 'visitor' | 'patient' | 'doctor' | 'admin' | 'superadmin';
 
 interface RoleContextType {
   role: UserRole;
@@ -10,13 +10,15 @@ interface RoleContextType {
 }
 
 export interface UserProfile {
+  id: string; // MongoDB _id
   name: string;
   email: string;
   phone?: string;
   avatar?: string;
   address?: string;
   dateOfBirth?: string;
-  role?: UserRole; // Added role field
+  role?: UserRole; // Frontend role
+  rôle?: string;   // Backend role
   // Doctor specific
   specialty?: string;
   degrees?: string[];
@@ -26,8 +28,38 @@ export interface UserProfile {
 const RoleContext = createContext<RoleContextType | undefined>(undefined);
 
 export const RoleProvider = ({ children }: { children: ReactNode }) => {
-  const [role, setRole] = useState<UserRole>('visitor');
-  const [user, setUser] = useState<UserProfile | null>(null);
+  const [role, setRole] = useState<UserRole>(() => {
+    const savedUser = localStorage.getItem('user');
+    if (savedUser) {
+      const user = JSON.parse(savedUser);
+      let role = user.rôle || user.role;
+      if (role === 'medecin') role = 'doctor';
+      return (role as UserRole) || 'visitor';
+    }
+    return 'visitor';
+  });
+
+  const [user, setUser] = useState<UserProfile | null>(() => {
+    const savedUser = localStorage.getItem('user');
+    if (savedUser) {
+      const user = JSON.parse(savedUser);
+      return {
+        id: user._id,
+        name: user.email,
+        email: user.email,
+        role: user.role === 'medecin' ? 'doctor' : user.role || user.rôle,
+        rôle: user.rôle
+      } as UserProfile;
+    }
+    return null;
+  });
+
+  // Synchronize state with localStorage
+  useEffect(() => {
+    if (user) {
+      // Just ensure context is synced, the api service already uses localStorage
+    }
+  }, [user, role]);
 
   return (
     <RoleContext.Provider value={{ role, setRole, user, setUser }}>

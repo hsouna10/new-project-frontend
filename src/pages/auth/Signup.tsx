@@ -47,9 +47,11 @@ export default function Signup() {
 
             setRole(role);
             setUser({
+                id: user._id,
                 name: `${user.prenom} ${user.nom}`,
                 email: user.email,
-                role: role
+                role: role,
+                rôle: user.rôle
             });
 
             navigate(`/dashboard/${role}`);

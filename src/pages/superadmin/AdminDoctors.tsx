@@ -24,6 +24,17 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@/components/ui/select";
+import { 
+    Dialog, 
+    DialogContent, 
+    DialogDescription, 
+    DialogHeader, 
+    DialogTitle, 
+    DialogTrigger,
+    DialogFooter 
+} from "@/components/ui/dialog";
+import { Label } from "@/components/ui/label";
+import { Plus, UserPlus } from "lucide-react";
 
 interface DoctorRequest {
     _id: string;
@@ -47,6 +58,17 @@ export default function AdminDoctors() {
     const [searchTerm, setSearchTerm] = useState("");
     const [statusFilter, setStatusFilter] = useState("all");
     const [specialtyFilter, setSpecialtyFilter] = useState("all");
+    const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
+    const [newDoctor, setNewDoctor] = useState({
+        nom: "",
+        prenom: "",
+        specialite: "",
+        email: "",
+        password: "",
+        telephone: "",
+        city: "",
+        gender: "M"
+    });
 
     const fetchRequests = async () => {
         try {
@@ -61,6 +83,19 @@ export default function AdminDoctors() {
             });
         } finally {
             setLoading(false);
+        }
+    };
+
+    const handleCreateDoctor = async () => {
+        try {
+            const res = await api.post('/superadmin/doctors', newDoctor);
+            if (res.data.status === 'success') {
+                toast({ title: "Succès", description: "Profil médecin créé avec succès !", className: "bg-green-600 text-white" });
+                setIsAddDialogOpen(false);
+                setNewDoctor({ nom: "", prenom: "", specialite: "", email: "", password: "", telephone: "", city: "", gender: "M" });
+            }
+        } catch (error) {
+            toast({ title: "Erreur", description: "Échec de la création.", variant: "destructive" });
         }
     };
 
@@ -134,8 +169,75 @@ export default function AdminDoctors() {
 
     return (
         <DashboardLayout>
-            <h1 className="text-3xl font-bold mb-2">Demandes d'Inscription Médecins</h1>
-            <p className="text-muted-foreground mb-8">Gérez les demandes d'accès à la plateforme.</p>
+            <div className="flex flex-col md:flex-row md:items-center justify-between mb-8 gap-4">
+                <div>
+                    <h1 className="text-3xl font-bold flex items-center gap-2">
+                        <UserPlus className="text-primary" />
+                        Gestion des Médecins
+                    </h1>
+                    <p className="text-muted-foreground">Pilotez le réseau médical de la plateforme.</p>
+                </div>
+
+                <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
+                    <DialogTrigger asChild>
+                        <Button className="h-12 px-6 font-bold gap-2 shadow-lg">
+                            <Plus className="w-5 h-5" />
+                            CRÉER PROFIL MÉDECIN
+                        </Button>
+                    </DialogTrigger>
+                    <DialogContent className="sm:max-w-[500px]">
+                        <DialogHeader>
+                            <DialogTitle>Nouvel Accès Médical</DialogTitle>
+                            <DialogDescription>Générez un profil complet pour un médecin.</DialogDescription>
+                        </DialogHeader>
+                        <div className="grid gap-4 py-4">
+                            <div className="grid grid-cols-2 gap-4">
+                                <div className="space-y-2">
+                                    <Label>Nom</Label>
+                                    <Input value={newDoctor.nom} onChange={e => setNewDoctor({...newDoctor, nom: e.target.value})} placeholder="Dr. Dupont" />
+                                </div>
+                                <div className="space-y-2">
+                                    <Label>Prénom</Label>
+                                    <Input value={newDoctor.prenom} onChange={e => setNewDoctor({...newDoctor, prenom: e.target.value})} />
+                                </div>
+                            </div>
+                            <div className="space-y-2">
+                                <Label>Spécialité</Label>
+                                <Input value={newDoctor.specialite} onChange={e => setNewDoctor({...newDoctor, specialite: e.target.value})} placeholder="Cardiologue, Généraliste..." />
+                            </div>
+                            <div className="grid grid-cols-2 gap-4">
+                                <div className="space-y-2">
+                                    <Label>Email</Label>
+                                    <Input type="email" value={newDoctor.email} onChange={e => setNewDoctor({...newDoctor, email: e.target.value})} placeholder="dr@mediverse.com" />
+                                </div>
+                                <div className="space-y-2">
+                                    <Label>Mot de passe</Label>
+                                    <Input type="password" value={newDoctor.password} onChange={e => setNewDoctor({...newDoctor, password: e.target.value})} />
+                                </div>
+                            </div>
+                            <div className="grid grid-cols-2 gap-4">
+                                <div className="space-y-2">
+                                    <Label>Ville</Label>
+                                    <Input value={newDoctor.city} onChange={e => setNewDoctor({...newDoctor, city: e.target.value})} />
+                                </div>
+                                <div className="space-y-2">
+                                    <Label>Genre</Label>
+                                    <Select value={newDoctor.gender} onValueChange={v => setNewDoctor({...newDoctor, gender: v})}>
+                                        <SelectTrigger><SelectValue /></SelectTrigger>
+                                        <SelectContent>
+                                            <SelectItem value="M">Masculin</SelectItem>
+                                            <SelectItem value="F">Féminin</SelectItem>
+                                        </SelectContent>
+                                    </Select>
+                                </div>
+                            </div>
+                        </div>
+                        <DialogFooter>
+                            <Button onClick={handleCreateDoctor} className="w-full h-12 font-bold uppercase tracking-widest">PUBLIER LE PROFIL</Button>
+                        </DialogFooter>
+                    </DialogContent>
+                </Dialog>
+            </div>
 
             <div className="flex flex-col md:flex-row gap-4 mb-6">
                 <div className="flex-1">

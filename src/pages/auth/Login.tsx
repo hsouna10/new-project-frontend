@@ -35,12 +35,15 @@ export default function Login() {
 
             setRole(role);
             setUser({
-                name: user.email, // We might want to fetch profile to get name
+                id: user._id,
+                name: user.email,
                 email: user.email,
-                role: role
+                role: role,
+                rôle: user.rôle
             });
 
-            navigate(`/dashboard/${role}`);
+            const targetDashboard = (role === 'admin' || role === 'superadmin') ? 'admin' : (role === 'adherent' ? 'member' : role);
+            navigate(`/dashboard/${targetDashboard}`);
         } catch (err: any) {
             console.error("Login failed", err);
             setError(err.response?.data?.message || "Échec de la connexion. Vérifiez vos identifiants ou le serveur.");
@@ -163,12 +166,15 @@ export default function Login() {
 
                                         setRole(role);
                                         setUser({
+                                            id: user._id,
                                             name: user.email,
                                             email: user.email,
-                                            role: role
+                                            role: role,
+                                            rôle: user.rôle
                                         });
 
-                                        navigate(`/dashboard/${role}`);
+                                        const targetDashboard = (role === 'admin' || role === 'superadmin') ? 'admin' : (role === 'adherent' ? 'member' : role);
+                                        navigate(`/dashboard/${targetDashboard}`);
                                     } catch (err: any) {
                                         console.error("Google Login failed", err);
                                         setError("Échec de la connexion Google.");

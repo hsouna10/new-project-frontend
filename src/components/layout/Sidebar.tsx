@@ -17,16 +17,42 @@ import {
     Menu,
     X,
     Activity,
-    Map as MapIcon
+    Map as MapIcon,
+    UserPlus,
+    CalendarCheck,
+    CreditCard,
+    Dumbbell,
+    Salad,
+    Building2,
+    Sparkles,
+    Book
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import api from '@/services/api';
 
 export default function Sidebar() {
     const { role, user, setRole, setUser } = useRole();
     const location = useLocation();
     const [isOpen, setIsOpen] = useState(true);
     const [mobileOpen, setMobileOpen] = useState(false);
+    const [branding, setBranding] = useState<any>(null);
+
+    useEffect(() => {
+        const fetchBranding = async () => {
+            if (role === 'admin' && user) {
+                try {
+                    const res = await api.get(`/admin/branding?adminId=${user.id}`);
+                    if (res.data.status === 'success') {
+                        setBranding(res.data.data);
+                    }
+                } catch (error) {
+                    console.error("Error fetching branding:", error);
+                }
+            }
+        };
+        fetchBranding();
+    }, [role, user]);
 
     const handleLogout = () => {
         setRole('visitor');
@@ -43,6 +69,7 @@ export default function Sidebar() {
                     { path: '/dashboard/patient/appointments', icon: Calendar, label: 'Mes Rendez-vous' },
                     { path: '/dashboard/patient/chatbot', icon: MessageSquare, label: 'Chatbot' },
                     { path: '/dashboard/patient/health-3d', icon: Activity, label: 'Santé 3D' },
+                    { path: '/dashboard/patient/journal', icon: Book, label: 'Journal de Santé' },
                     { path: '/dashboard/patient/reports', icon: FileText, label: 'Mes Rapports' },
                     { path: '/dashboard/patient/profile', icon: User, label: 'Mon Profil' },
                 ];
@@ -57,11 +84,23 @@ export default function Sidebar() {
                 ];
             case 'admin':
                 return [
-                    { path: '/dashboard/admin', icon: Home, label: 'Tableau de bord' },
-                    { path: '/dashboard/admin/users', icon: Users, label: 'Utilisateurs' },
-                    { path: '/dashboard/admin/doctors', icon: Stethoscope, label: 'Demandes Médecins' },
-                    { path: '/dashboard/admin/stats', icon: BarChart3, label: 'Statistiques' },
+                    { path: '/dashboard/admin', icon: Home, label: 'Dashboard' },
+                    { path: '/dashboard/admin/members', icon: Users, label: 'Membres' },
+                    { path: '/dashboard/admin/classes', icon: Calendar, label: 'Cours' },
+                    { path: '/dashboard/admin/workouts', icon: Dumbbell, label: 'Programmes' },
+                    { path: '/dashboard/admin/nutrition', icon: Salad, label: 'Nutrition' },
+                    { path: '/dashboard/admin/subscriptions', icon: CreditCard, label: 'Paiements' },
+                    { path: '/dashboard/admin/gym-profile', icon: User, label: 'Profil' },
+                    { path: '/dashboard/admin/branding', icon: Sparkles, label: 'Branding & Configuration' },
                     { path: '/dashboard/admin/settings', icon: Settings, label: 'Paramètres' },
+                ];
+            case 'superadmin':
+                return [
+                    { path: '/dashboard/admin', icon: Home, label: 'Dashboard Maître' },
+                    { path: '/dashboard/admin/gyms', icon: Building2, label: 'Gestion du Réseau', highlight: true },
+                    { path: '/dashboard/admin/doctors', icon: Stethoscope, label: 'Gestion Médecins' },
+                    { path: '/dashboard/admin/users', icon: Users, label: 'Utilisateurs Globaux' },
+                    { path: '/dashboard/admin/settings', icon: Settings, label: 'Paramètres Système' },
                 ];
             default:
                 return [
@@ -72,6 +111,9 @@ export default function Sidebar() {
     };
 
     const navItems = getNavItems();
+
+    const primaryColor = branding?.primaryColor || '#1B5E20';
+    const accentColor = branding?.accentColor || '#FFD600';
 
     return (
         <>
@@ -93,10 +135,19 @@ export default function Sidebar() {
             >
                 <div className="p-4 flex items-center justify-between">
                     <div className={cn("flex items-center gap-2 overflow-hidden", !isOpen && "justify-center w-full")}>
-                        <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-medical-teal to-medical-blue flex-shrink-0 flex items-center justify-center">
-                            <Stethoscope className="w-5 h-5 text-white" />
+                        <div 
+                            className="w-10 h-10 rounded-lg flex-shrink-0 flex items-center justify-center shadow-lg transition-transform hover:scale-105"
+                            style={{ background: `linear-gradient(135deg, ${primaryColor}, ${branding?.secondaryColor || '#66BB6A'})` }}
+                        >
+                            {branding?.logo ? (
+                                <img src={branding.logo} alt="Logo" className="w-full h-full object-cover rounded-lg" />
+                            ) : (
+                                <Building2 className="w-6 h-6 text-white" />
+                            )}
                         </div>
-                        {isOpen && <span className="font-bold text-lg whitespace-nowrap">sahtyy</span>}
+                        {isOpen && <span className="font-bold text-xl tracking-tight whitespace-nowrap uppercase italic ml-1">
+                            {branding?.name || 'sahtyy'}
+                        </span>}
                     </div>
                     {isOpen && (
                         <Button variant="ghost" size="icon" className="ml-auto" onClick={() => setIsOpen(false)}>
@@ -110,7 +161,7 @@ export default function Sidebar() {
                     )}
                 </div>
 
-                <nav className="flex-1 p-4 space-y-2 overflow-y-auto">
+                <nav className="flex-1 p-4 space-y-1 overflow-y-auto custom-scrollbar">
                     {navItems.map((item) => {
                         const isActive = location.pathname === item.path;
                         return (
@@ -118,13 +169,27 @@ export default function Sidebar() {
                                 <Button
                                     variant={isActive ? "secondary" : "ghost"}
                                     className={cn(
-                                        "w-full justify-start mb-1",
+                                        "w-full justify-start mb-1 transition-all group relative",
                                         !isOpen && "justify-center px-2",
-                                        isActive && "bg-medical-teal/10 text-medical-teal hover:bg-medical-teal/20"
+                                        isActive && "font-semibold shadow-sm",
+                                        //@ts-ignore
+                                        item.highlight && "bg-yellow-500/10 text-yellow-600 hover:bg-yellow-500/20"
                                     )}
+                                    style={isActive ? { 
+                                        backgroundColor: `${primaryColor}15`, 
+                                        color: primaryColor,
+                                        borderLeft: `4px solid ${accentColor}` 
+                                    } : {}}
                                 >
-                                    <item.icon className={cn("h-5 w-5", isOpen && "mr-2")} />
+                                    <item.icon className={cn("h-5 w-5 transition-transform group-hover:scale-110", isOpen && "mr-2")} />
                                     {isOpen && <span>{item.label}</span>}
+                                    {isActive && (
+                                        <motion.div 
+                                            layoutId="activeTab"
+                                            className="absolute right-0 top-0 bottom-0 w-1"
+                                            style={{ backgroundColor: accentColor }}
+                                        />
+                                    )}
                                 </Button>
                             </Link>
                         );
@@ -133,13 +198,16 @@ export default function Sidebar() {
 
                 <div className="p-4 border-t">
                     {user && isOpen && (
-                        <div className="mb-4 flex items-center gap-3 bg-muted/50 p-3 rounded-lg">
-                            <div className="w-8 h-8 rounded-full bg-gradient-to-br from-medical-teal to-medical-blue flex items-center justify-center text-white text-sm font-medium">
-                                {user.name.charAt(0)}
+                        <div className="mb-4 flex items-center gap-3 bg-muted/50 p-3 rounded-lg border border-border/50">
+                            <div 
+                                className="w-10 h-10 rounded-full flex items-center justify-center text-white text-sm font-bold shadow-md"
+                                style={{ background: `linear-gradient(135deg, ${primaryColor}, ${branding?.secondaryColor || '#3B82F6'})` }}
+                            >
+                                {user.name?.charAt(0) || 'A'}
                             </div>
                             <div className="overflow-hidden">
-                                <p className="text-sm font-medium truncate">{user.name}</p>
-                                <p className="text-xs text-muted-foreground truncate capitalize">{role}</p>
+                                <p className="text-sm font-bold truncate">{user.name}</p>
+                                <p className="text-[10px] text-muted-foreground truncate uppercase tracking-widest">{role}</p>
                             </div>
                         </div>
                     )}
@@ -148,7 +216,7 @@ export default function Sidebar() {
                         <Button
                             variant="ghost"
                             className={cn(
-                                "w-full justify-start text-red-500 hover:text-red-600 hover:bg-red-50",
+                                "w-full justify-start text-red-500 hover:text-red-700 hover:bg-red-50 transition-colors",
                                 !isOpen && "justify-center px-2"
                             )}
                             onClick={handleLogout}
@@ -172,17 +240,26 @@ export default function Sidebar() {
                     >
                         <div className="flex items-center justify-between mb-8">
                             <div className="flex items-center gap-2">
-                                <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-medical-teal to-medical-blue flex items-center justify-center">
-                                    <Stethoscope className="w-5 h-5 text-white" />
+                                <div 
+                                    className="w-10 h-10 rounded-lg flex items-center justify-center shadow-lg"
+                                    style={{ background: `linear-gradient(135deg, ${primaryColor}, ${branding?.secondaryColor || '#66BB6A'})` }}
+                                >
+                                    {branding?.logo ? (
+                                        <img src={branding.logo} alt="Logo" className="w-full h-full object-cover rounded-lg" />
+                                    ) : (
+                                        <Building2 className="w-6 h-6 text-white" />
+                                    )}
                                 </div>
-                                <span className="font-bold text-lg">sahtyy</span>
+                                <span className="font-bold text-xl uppercase tracking-tighter italic">
+                                    {branding?.name || 'sahtyy'}
+                                </span>
                             </div>
                             <Button variant="ghost" size="icon" onClick={() => setMobileOpen(false)}>
                                 <X className="h-5 w-5" />
                             </Button>
                         </div>
 
-                        <nav className="space-y-2">
+                        <nav className="space-y-1">
                             {navItems.map((item) => {
                                 const isActive = location.pathname === item.path;
                                 return (
@@ -190,11 +267,16 @@ export default function Sidebar() {
                                         <Button
                                             variant={isActive ? "secondary" : "ghost"}
                                             className={cn(
-                                                "w-full justify-start",
-                                                isActive && "bg-medical-teal/10 text-medical-teal"
+                                                "w-full justify-start transition-all",
+                                                isActive && "font-bold shadow-sm"
                                             )}
+                                            style={isActive ? { 
+                                                backgroundColor: `${primaryColor}15`, 
+                                                color: primaryColor,
+                                                borderLeft: `4px solid ${accentColor}` 
+                                            } : {}}
                                         >
-                                            <item.icon className="h-5 w-5 mr-2" />
+                                            <item.icon className="h-5 w-5 mr-3" />
                                             {item.label}
                                         </Button>
                                     </Link>
@@ -204,8 +286,8 @@ export default function Sidebar() {
 
                         <div className="absolute bottom-6 left-6 right-6">
                             <Link to="/" onClick={() => { handleLogout(); setMobileOpen(false); }}>
-                                <Button variant="ghost" className="w-full justify-start text-red-500 hover:text-red-600 hover:bg-red-50">
-                                    <LogOut className="h-5 w-5 mr-2" />
+                                <Button variant="ghost" className="w-full justify-start text-red-500 hover:text-red-700 hover:bg-red-50">
+                                    <LogOut className="h-5 w-5 mr-3" />
                                     Déconnexion
                                 </Button>
                             </Link>
